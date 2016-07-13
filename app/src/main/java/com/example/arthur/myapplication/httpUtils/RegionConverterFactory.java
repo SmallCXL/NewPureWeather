@@ -40,21 +40,19 @@ public class RegionConverterFactory extends Converter.Factory {
                         String[] infoArray = r.split("\\|");
                         region.setCode(infoArray[0]);
                         region.setName(infoArray[1]);
-                        region.setSuperCode(superCode);
-//                        switch (infoArray[0].length()){
-//                            case 2:
-//                                region.setSuperRegion(superRegion);
-//                                break;
-//                            case 4:
-//                                region.setSuperCityCode(infoArray[0].substring(0, 2));
-//                                region.setSuperCityName(superCityName+" - ");
-//                                break;
-//                            case 6:
-//                                region.setSuperCityCode(infoArray[0].substring(0, 4));
-//                                break;
-//                            default:
-//                                break;
-//                        }
+                        switch (infoArray[0].length()){
+                            case 2:
+                                region.setSuperCode("");
+                                break;
+                            case 4:
+                                region.setSuperCode(infoArray[0].substring(0, 2));
+                                break;
+                            case 6:
+                                region.setSuperCode(infoArray[0].substring(0, 4));
+                                break;
+                            default:
+                                break;
+                        }
                         regions.add(region);
                     }//end for
                 }//end if(allProvince != null && allProvince.length>0)
