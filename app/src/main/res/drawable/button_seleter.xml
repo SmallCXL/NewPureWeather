@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--按下时样式-->
+    <item android:state_pressed="true"
+          android:drawable="@drawable/my_button_on_pressed">
+
+    </item>
+
+    <!-- 获得焦点时样式-->
+    <item android:state_focused="true"
+          android:drawable="@drawable/my_button_on_pressed">
+
+    </item>
+    <!-- 默认样式-->
+    <item android:drawable="@drawable/my_button_style">
+    </item>
+
+</selector>

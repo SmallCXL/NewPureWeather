@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">PureWeather</string>
+    <string name="action_info">关于作者</string>
+    <string name="action_list">管理列表</string>
+    <string name="action_search">添加城市</string>
+    <string name="drawer_open">Open Drawer</string>
+    <string name="drawer_close">Close Drawer</string>
+
+</resources>
