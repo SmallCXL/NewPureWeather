@@ -11,8 +11,8 @@ import android.preference.PreferenceManager;
 
 import com.example.arthur.myapplication.modle.PureWeatherDB;
 import com.example.arthur.myapplication.receiver.AutoUpdateReceiver;
-import com.example.arthur.myapplication.utils.HttpCallbackListener;
-import com.example.arthur.myapplication.utils.HttpUtils;
+import com.example.arthur.myapplication.notUsed.HttpCallbackListener;
+import com.example.arthur.myapplication.notUsed.HttpUtils;
 
 /**
  * Created by Administrator on 2016/6/9.
@@ -60,7 +60,7 @@ public class AutoUpdateService extends Service{
             @Override
             public void onFinish(String response) {
                 // TODO Auto-generated method stub
-                pureWeatherDB.saveWeather(response);
+//                pureWeatherDB.saveWeather(response);
             }
 
             @Override

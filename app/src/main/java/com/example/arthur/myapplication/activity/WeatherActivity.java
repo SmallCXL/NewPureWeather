@@ -33,11 +33,7 @@ import com.example.arthur.myapplication.httpUtils.NetworkRequest;
 import com.example.arthur.myapplication.modle.CharSetEvent;
 import com.example.arthur.myapplication.modle.PureWeatherDB;
 import com.example.arthur.myapplication.modle.WeatherInfo;
-import com.example.arthur.myapplication.modle.WeatherResponse;
 import com.example.arthur.myapplication.service.AutoUpdateService;
-import com.example.arthur.myapplication.utils.HttpCallbackListener;
-import com.example.arthur.myapplication.utils.HttpUtils;
-import com.example.arthur.myapplication.utils.ResponseHandleUtils;
 import com.example.arthur.myapplication.utils.RxBus;
 import com.jakewharton.rxbinding.view.RxView;
 
@@ -58,9 +54,6 @@ import lecho.lib.hellocharts.view.LineChartView;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
-import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -111,7 +104,7 @@ public class WeatherActivity extends AppCompatActivity {
 
         if(TextUtils.isEmpty(lastCity)){
             //没有lastCity，直接去搜索页面
-            Toast.makeText(WeatherActivity.this, "没有城市信息可供显示，去选择一个吧~", Toast.LENGTH_SHORT).show();
+            Toast.makeText(WeatherActivity.this, "还没选择城市，快选择一个吧~", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this,SearchActivity.class);
             startActivity(intent);
             finish();
@@ -360,72 +353,6 @@ public class WeatherActivity extends AppCompatActivity {
             allSubscription.unsubscribe();
     }
 
-
-//
-//    private void createDownloadAddress(String cityName) {
-//        // TODO Auto-generated method stub
-//        String address = new StringBuilder().append("https://api.heweather.com/x3/weather?city=")
-//                .append(cityName).append("&key=37fa5d4ad1ea4d5da9f37e75732fb2e7").toString();
-//        //String address = new StringBuilder()
-//        //	.append("http://apis.baidu.com/heweather/pro/weather?city=").append(cityName).toString();
-//        searchInternetForInfo(address);
-//    }
-//
-//    private void searchInternetForInfo(String address) {
-//        // TODO Auto-generated method stub
-//
-//        HttpUtils.sendHttpRequest(address, new HttpCallbackListener() {
-//
-//            @Override
-//            public void onFinish(String response) {//天气提供商有数据回应
-//                // TODO Auto-generated method stub
-//
-//                //后期完善存入数据库失败的处理
-//                //获取的信息为有效的天气信息，在UI线程更新UI的显示
-//                if (pureWeatherDB.saveWeather(response)) {
-//
-//                    //取出response中的 city 字段并保存至pref中的"city_name"
-//                    ResponseHandleUtils.handleWeatherResponse(WeatherActivity.this, response);
-//
-//                    lastCity = pref.getString("city_name", "");
-//
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            // TODO Auto-generated method stub
-//                            swipeRefreshLayout.setRefreshing(false);
-//
-//                            showWeather();
-//                            Toast.makeText(WeatherActivity.this, "已刷新天气信息~", Toast.LENGTH_SHORT).show();
-//                        }
-//                    });
-//                }
-//                //获取信息失败
-//                else {
-//                    //closeMyDialog();
-//                    Toast.makeText(WeatherActivity.this, "暂时没有这个城市的天气信息，试试重新加载吧~", Toast.LENGTH_SHORT).show();
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onError(Exception e) {
-//                // TODO Auto-generated method stub
-//                runOnUiThread(new Runnable() {
-//
-//                    @Override
-//                    public void run() {
-//                        // TODO Auto-generated method stub
-//                        //closeMyDialog();
-//                        Toast.makeText(WeatherActivity.this, "Sorry，网络连接失败，请重试！", Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                });
-//            }
-//
-//        });
-//    }
-
     private void showWeather() {
         // TODO Auto-generated method stub
 
@@ -529,6 +456,5 @@ public class WeatherActivity extends AppCompatActivity {
             System.exit(0);
         }
     }
-
 
 }

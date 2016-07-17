@@ -25,6 +25,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.arthur.myapplication.R;
 import com.example.arthur.myapplication.httpUtils.NetworkRequest;
+import com.example.arthur.myapplication.modle.CityAdapter;
 import com.example.arthur.myapplication.modle.PureWeatherDB;
 import com.example.arthur.myapplication.modle.Region;
 
@@ -68,11 +69,12 @@ public class MainActivity extends AppCompatActivity {
     private EditText searchInput;
     private RecyclerView mRecyclerView;
     private MyRecycleViewAdapter mAdapter;
+    private CityAdapter cityAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.new_search_city_activity_layout);
         collapsingToolbar =(CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
         toolbar = ((Toolbar) findViewById(R.id.weather_toolbar));
         setSupportActionBar(toolbar);
@@ -103,10 +105,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initRecycleView() {
+        List<String> list = new ArrayList<>();
+        list.add("北京");
+        list.add("阳江");
+        cityAdapter = new CityAdapter(MainActivity.this,list);
         mAdapter = new MyRecycleViewAdapter();
         mRecyclerView = ((RecyclerView) findViewById(R.id.search_city_activity_recycle_view));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setAdapter(cityAdapter);
     }
 
 
@@ -192,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
             TextView textView;
             public MyViewHolderOne(View itemView) {
                 super(itemView);
-                textView = (TextView) itemView.findViewById(R.id.recycle_view_text);
+                textView = (TextView) itemView.findViewById(R.id.search_city_recycle_view_city_title);
 
             }
         }

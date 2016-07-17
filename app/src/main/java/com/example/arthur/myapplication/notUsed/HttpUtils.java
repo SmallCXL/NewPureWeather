@@ -1,4 +1,6 @@
-package com.example.arthur.myapplication.utils;
+package com.example.arthur.myapplication.notUsed;
+
+import com.example.arthur.myapplication.notUsed.HttpCallbackListener;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

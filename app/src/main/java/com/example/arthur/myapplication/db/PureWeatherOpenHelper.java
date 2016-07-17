@@ -17,34 +17,6 @@ public class PureWeatherOpenHelper extends SQLiteOpenHelper {
             "super_region_code text)";
 
     /*
-     * 省份的建表语句
-     *
-     */
-    public static final String CREATE_PROVINCE = "create table Province (" +
-            "id integer primary key autoincrement, " +
-            "province_name text, " +
-            "province_code text)";
-
-    /*
-     * 城市的建表语句
-     *
-     */
-    public static final String CREATE_CITY = "create table City (" +
-            "id integer primary key autoincrement, " +
-            "city_name text, " +
-            "city_code text, " +
-            "province_id integer)";
-
-    /*
-     * 省份的建表语句
-     *
-     */
-    public static final String CREATE_COUNTY = "create table County (" +
-            "id integer primary key autoincrement, " +
-            "county_name text, " +
-            "county_code text, " +
-            "city_id integer)";
-    /*
      * 天气信息的建表语句
      */
     public static final String CREATE_WEATHER = "create table Weather (" +
@@ -81,9 +53,6 @@ public class PureWeatherOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // TODO Auto-generated method stub
-        db.execSQL(CREATE_PROVINCE);
-        db.execSQL(CREATE_COUNTY);
-        db.execSQL(CREATE_CITY);
         db.execSQL(CREATE_WEATHER);
         db.execSQL(CREATE_REGION);
 

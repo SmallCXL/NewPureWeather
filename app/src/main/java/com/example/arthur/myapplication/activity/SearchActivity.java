@@ -8,7 +8,10 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -18,26 +21,23 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.example.arthur.myapplication.R;
 import com.example.arthur.myapplication.httpUtils.NetworkRequest;
-import com.example.arthur.myapplication.modle.City;
-import com.example.arthur.myapplication.modle.County;
-import com.example.arthur.myapplication.modle.Province;
+import com.example.arthur.myapplication.modle.CityAdapter;
 import com.example.arthur.myapplication.modle.PureWeatherDB;
 import com.example.arthur.myapplication.modle.Region;
 import com.example.arthur.myapplication.modle.WeatherInfo;
-import com.example.arthur.myapplication.utils.HttpCallbackListener;
-import com.example.arthur.myapplication.utils.HttpUtils;
-import com.example.arthur.myapplication.utils.ResponseHandleUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
-import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -48,10 +48,11 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     public static final int PROVINCE = 0;
     public static final int CITY = 1;
     public static final int COUNTY = 2;
-    public static final int SEARCH = 3;
+
+    private final String ChinaCode = "";
+    private static final String SEARCH_FAIL = "找不到该城市，请重新搜索...";
 
     private ProgressDialog progressDialog;
-    private TextView resultText;
     private ListView listView;
 
     private ArrayAdapter<String> adapter;
@@ -63,134 +64,146 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
      * 数据列表
      */
     private List<String> dataList = new ArrayList<>();
-    private List<Province> provinceList;
-    private List<City> cityList;
-    private List<County> countyList;
+    private List<String> resultList = new ArrayList<>();
+
     private List<Region> regionList = new ArrayList<>();
+
     /*
      * 选中的内容
      */
-    private Province seletedProvince;
-    private City seletedCity;
-    private Region seletedRegion;
-    private String seletedResult;
+    private Region selectedRegion;
+    private String selectedResult;
     private String lastCity;
+    private Region selectedProvince;
     private int currentLevel = PROVINCE;
 
     private EditText inputName;
     private Button searchCity;
     private Toolbar toolbar;
 
-    private static final String SEARCH_FAIL = "找不到该城市，请重新搜索...";
-
     private WeatherInfo tempInfo;
+
+    private RecyclerView mRecyclerView;
+    private CityAdapter cityAdapter;
+
+    private CollapsingToolbarLayout collapsingToolbar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.search_city_activity);
-
+        setContentView(R.layout.new_search_city_activity_layout);
         init();
-        final String provinceSuperId = "";//Province为最顶层区域，不需要superId
-
-        getRegion(provinceSuperId);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> arg0, View view, int index, long arg3) {
-                currentLevel = getNowLevel();
-                if (currentLevel == CITY || currentLevel == PROVINCE) {
-//                    seletedProvince = provinceList.get(index);
-//                    queryCities();
-                    seletedRegion = regionList.get(index);
-                    getRegion(seletedRegion.getCode());
-                } else if (currentLevel == COUNTY) {
-                    lastCity = regionList.get(index).getName();
-                    getWeatherByNetwork(lastCity)
-                            .subscribe(new Subscriber<WeatherInfo>() {
-                                @Override
-                                public void onCompleted() {
-                                    goToWeatherActivity();
-                                }
-
-                                @Override
-                                public void onError(Throwable e) {
-                                    Toast.makeText(SearchActivity.this, "下载天气数据失败...请重试！", Toast.LENGTH_SHORT).show();
-                                    closeProgressDialog();
-                                }
-
-                                @Override
-                                public void onNext(WeatherInfo weatherInfo) {
-                                    pureWeatherDB.saveWeather(weatherInfo);
-                                }
-                            });
-                } else if (currentLevel == SEARCH) {
-                    seletedResult = dataList.get(index);
-                    if (!seletedResult.equals(SEARCH_FAIL)) {
-                        pureWeatherDB.saveWeather(tempInfo);
-                        editor.putString("last_city", seletedResult);
-                        editor.commit();
-                        Intent intent = new Intent(SearchActivity.this, WeatherActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                }
-//                else if(currentLevel == CITY){
-////                    seletedCity = cityList.get(index);
-////                    queryCounties();
-//                    seletedRegion = regionList.get(index);
-//                    getRegion(seletedRegion.getCode());
-//                }
-//                else if(currentLevel == COUNTY){
-//
-//                    lastCity = dataList.get(index);
-//                    queryFromServer(lastCity, "last_city");
-//                }
-//                else if (currentLevel == SEARCH){
-//                    seletedResult = dataList.get(index);
-//                    if((!seletedResult.equals(SEARCH_FAIL) && (!TextUtils.isEmpty(seletedResult)))){
-//                        //同时将该天气信息保存到数据库中，以供main界面显示
-//                        pureWeatherDB.saveWeather( httpResponse);
-//                        //该方法返回一个boolean，用于确认是否保存成功，目前未使用
-//                        editor.putString("last_city", seletedResult);
-//                        editor.commit();
-//
-//                        Intent intent = new Intent(SearchActivity.this,WeatherActivity.class);
-//                        startActivity(intent);
-//                        finish();
-//                    }
-//                }
-            }
-        });
+        getRegion(ChinaCode);
     }
 
     private void init() {
-        seletedProvince = null;
-        seletedCity = null;
+        initData();
+        initView();
+        initToolbarLayout();
+        initRecyclerView();
+    }
 
-        listView = (ListView) findViewById(R.id.search_result_list_view);
-        resultText = (TextView) findViewById(R.id.search_result);
-
-        inputName = (EditText) findViewById(R.id.input_city_name);
-
-        searchCity = (Button) findViewById(R.id.search_city);
-        searchCity.setOnClickListener(this);
-
-        adapter = new ArrayAdapter<>(this, R.layout.search_city_listview, dataList);
-        listView.setAdapter(adapter);
-
+    private void initData(){
+        selectedRegion = null;
+        currentLevel = PROVINCE;
         pureWeatherDB = PureWeatherDB.getInstance(this);
         editor = PreferenceManager.getDefaultSharedPreferences(SearchActivity.this).edit();
         pref = PreferenceManager.getDefaultSharedPreferences(SearchActivity.this);
         lastCity = pref.getString("last_city", "");
+    }
 
-        toolbar = (Toolbar) findViewById(R.id.tl_custom);
-        toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
-        toolbar.setTitle("搜索城市");
+    private void initView(){
+        inputName = (EditText) findViewById(R.id.search_input);
+        searchCity = (Button) findViewById(R.id.search_city_btn);
+        searchCity.setOnClickListener(this);
+
+        listView = (ListView) findViewById(R.id.search_result);
+        adapter = new ArrayAdapter<>(this, R.layout.search_city_listview, resultList);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View view, int index, long arg3) {
+
+                selectedResult = resultList.get(index);
+                if (!selectedResult.equals(SEARCH_FAIL) && tempInfo != null) {
+                    pureWeatherDB.saveWeather(tempInfo);
+                    editor.putString("last_city", selectedResult);
+                    editor.commit();
+                    Intent intent = new Intent(SearchActivity.this, WeatherActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
+    }
+    private void initToolbarLayout(){
+        collapsingToolbar =(CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
+        toolbar = ((Toolbar) findViewById(R.id.weather_toolbar));
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true); //设置返回键可用
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        collapsingToolbar.setTitle("选择城市");
+        collapsingToolbar.setExpandedTitleColor(Color.parseColor("#003F51B5"));
+        Glide.with(this)
+                .load(R.drawable.beijing_2)
+                .fitCenter()
+                .crossFade()
+                .into(new SimpleTarget<GlideDrawable>() {
+                    @Override
+                    public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
+                        collapsingToolbar.setBackground(resource);
+                    }
+                });
+    }
 
+    private void initRecyclerView() {
+        mRecyclerView = ((RecyclerView) findViewById(R.id.search_city_activity_recycle_view));
+        cityAdapter = new CityAdapter(SearchActivity.this, dataList);
+        cityAdapter.setOnItemClickListener(new CityAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                selectedRegion = regionList.get(position);
+                switch (selectedRegion.getCode().length()) {
+                    case 2:
+                        currentLevel = CITY;
+                        selectedProvince = selectedRegion;
+                        getRegion(selectedRegion.getCode());
+                        break;
+                    case 4:
+                        currentLevel = COUNTY;
+                        getRegion(selectedRegion.getCode());
+                        break;
+                    case 6:
+                        getWeatherByNetwork(selectedRegion.getName())
+                                .doOnError(throwable ->
+                                        Toast.makeText(SearchActivity.this, "网络好像不给力，请重试...", Toast.LENGTH_SHORT).show())
+                                .subscribe(weatherInfo -> {
+                                    switch (weatherInfo.getStatus()) {
+                                        case "ok":
+                                            pureWeatherDB.saveWeather(weatherInfo);
+                                            lastCity = selectedRegion.getName();
+                                            goToWeatherActivity();
+                                            break;
+                                        case "unknown city":
+                                            Toast.makeText(SearchActivity.this, "暂时没有这个城市的信息...", Toast.LENGTH_SHORT).show();
+                                            closeProgressDialog();
+                                            break;
+                                        case "no more requests":
+                                            Toast.makeText(SearchActivity.this, "免费的访问次数用完了...", Toast.LENGTH_SHORT).show();
+                                            closeProgressDialog();
+                                            break;
+                                        case "anr":
+                                            Toast.makeText(SearchActivity.this, "服务器无响应，请重试...", Toast.LENGTH_SHORT).show();
+                                            closeProgressDialog();
+                                            break;
+                                    }
+                                });
+                        break;
+                }
+            }
+        });
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setAdapter(cityAdapter);
     }
 
     private void goToWeatherActivity() {
@@ -202,31 +215,16 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         finish();
     }
 
-    private int getNowLevel() {
-        if (seletedRegion == null)
-            return PROVINCE;
-        switch (seletedRegion.getCode().length()) {
-            case 2:
-                return CITY;
-            case 4:
-                return COUNTY;
-            default:
-                return -1;
-        }
-
-
-    }
-
     private void getRegion(final String superCode) {
         Observable
                 .concat(getRegionByDB(superCode), getRegionByNetwork(superCode))
                 .first(regions -> regions.size() > 0)
-                .subscribe(regions -> {
-                    dataList.clear();
-                    for (Region r : regions) {
-                        dataList.add(r.getName());
-                    }
-                    adapter.notifyDataSetChanged();
+                .flatMap(regions -> Observable.from(regions))
+                .map(region -> region.getName())
+                .doOnCompleted(() -> cityAdapter.notifyDataSetChanged())
+                .doOnSubscribe(() -> dataList.clear())
+                .subscribe(regionName -> {
+                    dataList.add(regionName);
                 });
     }
 
@@ -260,184 +258,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 .flatMap(weatherResponse -> Observable.from(weatherResponse.getWeatherInfos()));
     }
 
-    private void queryProvinces() {
-        // TODO Auto-generated method stub
-        provinceList = pureWeatherDB.loadProvinces();
-        if (provinceList.size() > 0) {
-            dataList.clear();
-            for (Province p : provinceList) {
-                dataList.add(p.getProvinceName());
-            }
-            adapter.notifyDataSetChanged();
-            StringBuilder result = new StringBuilder().append("请选择省份：");
-            resultText.setText(result.toString());
-            currentLevel = PROVINCE;
-        }//end if
-        else {
-            queryFromServer(null, "province");
-        }
-    }
-
-    private void queryCities() {
-        // TODO Auto-generated method stub
-        cityList = pureWeatherDB.loadCities(seletedProvince.getId());
-        if (cityList.size() > 0) {
-            dataList.clear();
-            for (City c : cityList) {
-                dataList.add(c.getCityName());
-            }
-            adapter.notifyDataSetChanged();
-            listView.setSelection(0);
-            StringBuilder result = new StringBuilder().append("请选择城市： ").append(seletedProvince.getProvinceName());
-            resultText.setText(result.toString());
-            currentLevel = CITY;
-        } else {
-            queryFromServer(seletedProvince.getProvinceCode(), "city");
-        }
-    }
-
-    private void queryCounties() {
-        // TODO Auto-generated method stub
-        countyList = pureWeatherDB.loadCounties(seletedCity.getId());
-        if (countyList.size() > 0) {
-            dataList.clear();
-            for (County c : countyList) {
-                dataList.add(c.getCountyName());
-            }
-            adapter.notifyDataSetChanged();
-            listView.setSelection(0);
-            StringBuilder title = new StringBuilder().append("请选择县城： ").append(seletedProvince.getProvinceName())
-                    .append(" - ").append(seletedCity.getCityName());
-            resultText.setText(title.toString());
-            currentLevel = COUNTY;
-        } else {
-            queryFromServer(seletedCity.getCityCode(), "county");
-        }
-    }
-
-    /*
-     *  在数据库中找不到相关数据或者第一次加载，则调用queryFromServer方法从网络上下载城市数据
-     */
-    private void queryFromServer(final String code, final String type) {
-        // TODO Auto-generated method stub
-        String address;
-        switch (type) {
-            case "city":
-            case "county":
-                address = new StringBuilder().append("http://www.weather.com.cn/data/list3/city").
-                        append(code).append(".xml").toString();
-                break;
-            case "province":
-                address = new StringBuilder().append("http://www.weather.com.cn/data/list3/city.xml").toString();
-                break;
-            case "last_city":
-            case "search":
-                address = new StringBuilder().append("https://api.heweather.com/x3/weather?city=")
-                        .append(code).append("&key=37fa5d4ad1ea4d5da9f37e75732fb2e7").toString();
-                break;
-            default:
-                return;
-        }
-
-        showProgressDialog();
-        HttpUtils.sendHttpRequest(address, new HttpCallbackListener() {
-
-            @Override
-            public void onFinish(final String response) {
-                // TODO Auto-generated method stub
-                boolean result = false;
-                switch (type) {
-                    case "province":
-                        result = ResponseHandleUtils.handleProvincesResponse(pureWeatherDB, response);
-                        break;
-                    case "city":
-                        result = ResponseHandleUtils.handleCitiesResponse(pureWeatherDB, response, seletedProvince.getId());
-                        break;
-                    case "county":
-                        result = ResponseHandleUtils.handleCountiesResponse(pureWeatherDB, response, seletedCity.getId());
-                        break;
-                    case "last_city":
-                        result = pureWeatherDB.saveWeather(response);
-                        break;
-                    case "search":
-                        result = ResponseHandleUtils.handleWeatherResponse(SearchActivity.this, response);
-                        break;
-                }
-
-                //以上已经下载完毕，以下重新调用查询数据库的方法
-                if (result) {
-                    //queryProvince一类的方法中涉及到UI操作，而onFinish方法是在子线程中执行的。
-                    //因此，需要在调用queryProvince之前，将代码放入UI线程中执行
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // TODO Auto-generated method stub
-                            switch (type) {
-                                case "province":
-                                    queryProvinces();
-                                    break;
-                                case "city":
-                                    queryCities();
-                                    break;
-                                case "county":
-                                    queryCounties();
-                                    break;
-                                case "last_city":
-                                    editor.putString("last_city", code);
-                                    editor.commit();
-//                                    Toast.makeText(SearchActivity.this, "数据解析成功！", Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(SearchActivity.this, WeatherActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                    break;
-                                case "search":
-//                                    httpResponse = response;
-                                    dataList.clear();
-                                    dataList.add(pref.getString("city_name", ""));
-                                    adapter.notifyDataSetChanged();
-
-                                    break;
-                            }
-                            closeProgressDialog();//下载完成，关闭提示框
-                        }//end run
-                    });//end runOnUiThread
-                }//end if(result)
-                else if (result == false && type.equals("search")) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // TODO Auto-generated method stub
-                            //查询的结果不合法
-                            dataList.clear();
-                            dataList.add(SEARCH_FAIL);
-                            adapter.notifyDataSetChanged();
-                            closeProgressDialog();
-                        }
-                    });
-
-                }
-                //closeProgressDialog();
-            }//end onFinish
-
-            @Override
-            public void onError(Exception e) {
-                // TODO Auto-generated method stub
-                //进入子线程中进行UI操作
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        // TODO Auto-generated method stub
-                        closeProgressDialog();
-                        Toast.makeText(SearchActivity.this, "加载网络数据失败!请重试...", Toast.LENGTH_SHORT).show();
-                    }//end run
-                });//end runOnUiThread
-            }//end onError
-
-        });//end HttpUtil.sendHttpRequest
-
-    }
-
     /*
      * 显示下载进度对话框
      */
@@ -466,28 +286,27 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
      */
     @Override
     public void onBackPressed() {
-        switch (currentLevel) {
-            case COUNTY:
-                queryCities();
-                listView.setSelection(dataList.indexOf(seletedCity.getCityName()));
-                break;
-            case CITY:
-                queryProvinces();
-                listView.setSelection(dataList.indexOf(seletedProvince.getProvinceName()));
-                break;
-            case PROVINCE:
-                if (TextUtils.isEmpty(lastCity)) {
-                    finish();
-                    System.exit(0);
-                }
-                Intent intent = new Intent(this, WeatherActivity.class);
-                startActivity(intent);
+        if (selectedRegion == null){
+            if (TextUtils.isEmpty(lastCity)){
                 finish();
-                break;
-            case SEARCH:
-                resultText.setText("请选择省份：");
-                queryProvinces();
-                break;
+                System.exit(0);
+            }
+            goToWeatherActivity();
+        }
+        else {
+            switch (currentLevel){
+                case COUNTY:
+                    getRegion(selectedProvince.getCode());
+                    currentLevel = CITY;
+                    break;
+                case CITY:
+                    getRegion(ChinaCode);
+                    currentLevel = PROVINCE;
+                    break;
+                case PROVINCE:
+                    goToWeatherActivity();
+                    break;
+            }
         }
     }
 
@@ -495,44 +314,25 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case (R.id.search_city):
+            case (R.id.search_city_btn):
                 String input = inputName.getText().toString();
                 if (!TextUtils.isEmpty(input)) {
                     getWeatherByNetwork(input)
                             .doOnTerminate(() -> {
-                                inputName.setText("");
-                                resultText.setText("搜索结果：");
                                 adapter.notifyDataSetChanged();
-                                currentLevel = SEARCH;
                                 closeProgressDialog();
                             })
-                            .subscribe(new Subscriber<WeatherInfo>() {
-                                @Override
-                                public void onCompleted() {
-//                                    dataList.clear();
-//                                    dataList.add(SEARCH_FAIL);
-//                                    Toast.makeText(SearchActivity.this, "加载完成...", Toast.LENGTH_SHORT).show();
+                            .subscribe(weatherInfo -> {
+                                String item;
+                                if (weatherInfo.getStatus().equals("ok")) {
+                                    item = weatherInfo.getBasic().getCity();
+                                    tempInfo = weatherInfo;
+                                } else {
+                                    item = SEARCH_FAIL;
                                 }
-
-                                @Override
-                                public void onError(Throwable e) {
-
-                                }
-
-                                @Override
-                                public void onNext(WeatherInfo weatherInfo) {
-                                    String item;
-                                    if (weatherInfo.getStatus().equals("ok")) {
-                                        item = weatherInfo.getBasic().getCity();
-                                        tempInfo = weatherInfo;
-                                    } else {
-                                        item = SEARCH_FAIL;
-                                    }
-                                    dataList.clear();
-                                    dataList.add(item);
-                                }
+                                resultList.clear();
+                                resultList.add(item);
                             });
-//                    queryFromServer(input, "search");
                 }
                 break;
         }
@@ -546,9 +346,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 finish();
                 System.exit(0);
             }
-            Intent intent = new Intent(this, WeatherActivity.class);
-            startActivity(intent);
-            finish();
+            goToWeatherActivity();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -557,10 +355,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onResume() {
         super.onResume();
-        SharedPreferences pref = PreferenceManager.
-                getDefaultSharedPreferences(this);
         lastCity = pref.getString("last_city", "");
-
     }
-
 }

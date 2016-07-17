@@ -3,11 +3,12 @@ package com.example.arthur.myapplication.modle;
 /**
  * Created by Administrator on 2016/6/9.
  */
-public class Weather {
+public class BriefWeatherInfo {
     private String nowTemp;
     private String cityName;
     private String condText;
     private String tempRange;
+    private String updateTime;
 
     public String getNowTemp() {
         return nowTemp;
@@ -39,5 +40,13 @@ public class Weather {
 
     public void setTempRange(String tempRange) {
         this.tempRange = tempRange;
+    }
+
+    public String getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(String updateTime) {
+        this.updateTime = updateTime;
     }
 }

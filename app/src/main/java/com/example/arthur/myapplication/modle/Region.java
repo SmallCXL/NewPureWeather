@@ -8,7 +8,6 @@ public class Region {
     private String name;
     private String code;
     private String superCode;
-    private Region superRegion;
 
     public String getSuperCode() {
         return superCode;
@@ -29,7 +28,6 @@ public class Region {
     public String getCode() {
         return code;
     }
-
     public void setCode(String code) {
         this.code = code;
     }

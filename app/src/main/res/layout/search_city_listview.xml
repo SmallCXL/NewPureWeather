@@ -4,8 +4,8 @@
     android:minHeight="30dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:textColor="@color/colorPrimary"
+    android:textColor="@color/colorWhite"
     android:textSize="14sp"
-    android:gravity="left|center">
+    android:gravity="center">
 
 </TextView>

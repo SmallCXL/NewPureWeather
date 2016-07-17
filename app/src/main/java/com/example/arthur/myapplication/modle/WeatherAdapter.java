@@ -5,9 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.arthur.myapplication.R;
 
@@ -16,10 +14,10 @@ import java.util.List;
 /**
  * Created by Administrator on 2016/6/9.
  */
-public class WeatherAdapter extends ArrayAdapter<Weather> {
+public class WeatherAdapter extends ArrayAdapter<BriefWeatherInfo> {
     private int resourceID;
     private Context context;
-    public WeatherAdapter(Context context, int resource, List<Weather> objects) {
+    public WeatherAdapter(Context context, int resource, List<BriefWeatherInfo> objects) {
         super(context, resource, objects);
         this.context = context;
         resourceID = resource;
@@ -28,16 +26,16 @@ public class WeatherAdapter extends ArrayAdapter<Weather> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
         View view ;
-        Weather info = getItem(position);
+        BriefWeatherInfo info = getItem(position);
         ViewHolder VH;
         if (convertView == null){
 
             view = LayoutInflater.from(getContext()).inflate(resourceID, null);
             VH = new ViewHolder();
-            VH.nowTemp = (TextView) view.findViewById(R.id.city_manager_card_view__now_temp);
+            VH.nowTemp = (TextView) view.findViewById(R.id.city_manager_card_view_now_temp);
             VH.cityName = (TextView) view.findViewById(R.id.city_manager_card_view_title);
             VH.condText = (TextView) view.findViewById(R.id.city_manager_card_view_condition);
-            VH.tempRange = (TextView) view.findViewById(R.id.city_manager_card_image_temp_range);
+            VH.tempRange = (TextView) view.findViewById(R.id.city_manager_card_view_temp_range);
 //            VH.background = (ImageView) view.findViewById(R.id.city_manager_card_view_background);
             view.setTag(VH);
         }
