@@ -3,10 +3,10 @@ package com.example.arthur.myapplication.modle;
 import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -50,14 +50,15 @@ public class BriefWeatherAdapter extends RecyclerView.Adapter<BriefWeatherAdapte
                 .into(new SimpleTarget<GlideDrawable>() {
                     @Override
                     public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
-                        holder.weatherImage.setBackground(resource);
+                        holder.nowTemp.setBackground(resource);
                     }
                 });
         if(mOnItemClickListener != null){
-            holder.cardView.setOnClickListener(new View.OnClickListener() {
+            holder.cardView.setOnClickListener(v -> mOnItemClickListener.onItemClick(v, position));
+            holder.cardView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                 @Override
-                public void onClick(View v) {
-                    mOnItemClickListener.onItemClick(v, position);
+                public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                    mOnItemClickListener.onItemLongClick(menu, v, menuInfo, position);
                 }
             });
         }
@@ -69,7 +70,6 @@ public class BriefWeatherAdapter extends RecyclerView.Adapter<BriefWeatherAdapte
     }
     class BriefWeatherViewHolder extends RecyclerView.ViewHolder{
         CardView cardView;
-        ImageView weatherImage;
         TextView nowTemp;
         TextView cityName;
         TextView nowCondition;
@@ -78,18 +78,18 @@ public class BriefWeatherAdapter extends RecyclerView.Adapter<BriefWeatherAdapte
         public BriefWeatherViewHolder(View itemView) {
             super(itemView);
             cardView = ((CardView) itemView.findViewById(R.id.city_manager_card_view));
-            weatherImage = ((ImageView) itemView.findViewById(R.id.city_manager_card_view_background));
             nowTemp = ((TextView) itemView.findViewById(R.id.city_manager_card_view_now_temp));
             cityName = ((TextView) itemView.findViewById(R.id.city_manager_card_view_title));
             nowCondition = ((TextView) itemView.findViewById(R.id.city_manager_card_view_condition));
             tempRange = ((TextView) itemView.findViewById(R.id.city_manager_card_view_temp_range));
-            updateTime = ((TextView) itemView.findViewById(R.id.city_list_card_view_update_time));
+            updateTime = ((TextView) itemView.findViewById(R.id.city_manager_card_view_update_time));
         }
     }
 
     public interface OnItemClickListener
     {
         void onItemClick(View view, int position);
+        void onItemLongClick(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo, int position);
     }
     private OnItemClickListener mOnItemClickListener;
 

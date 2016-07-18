@@ -154,7 +154,7 @@ public class PureWeatherDB {
                 info.setNowTemp(nowTemp.toString());
 
                 StringBuilder updateTime = new StringBuilder().append(cursor.getString(cursor.getColumnIndex("update_time"))).append("更新");
-                info.setUpdateTime(updateTime.toString().replace(" ","\n"));
+                info.setUpdateTime(updateTime.toString().substring(5));
 
 //
 //                info.setImageCode(cursor.getString(cursor.getColumnIndex("image_code")));

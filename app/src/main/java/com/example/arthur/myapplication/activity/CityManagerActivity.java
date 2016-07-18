@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -14,7 +15,6 @@ import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.bumptech.glide.Glide;
@@ -39,9 +39,12 @@ public class CityManagerActivity extends AppCompatActivity {
     private WeatherAdapter adapter;
     private List<BriefWeatherInfo> briefWeatherInfos;
     private List<BriefWeatherInfo> dataList = new ArrayList<>();
+    final static private int DELETE = -1;
+    final static private int REFRESH = 0;
+
 
     private String lastCity;
-    private int selectedCity;
+    private int selectedIndex;
     private Toolbar toolbar;
 
     private PureWeatherDB pureWeatherDB;
@@ -59,7 +62,7 @@ public class CityManagerActivity extends AppCompatActivity {
         setContentView(R.layout.new_city_manager_layout);
 
         init();
-        refreshListView();
+        refreshRecyclerView(REFRESH);
 
         if (TextUtils.isEmpty(lastCity)) {
             Intent intent = new Intent(CityManagerActivity.this, SearchActivity.class);
@@ -88,17 +91,16 @@ public class CityManagerActivity extends AppCompatActivity {
     }
 
     private void init() {
-
         initData();
         initToolbarLayout();
         initRecyclerView();
-
     }
     private void initData(){
         pureWeatherDB = PureWeatherDB.getInstance(this);
         editor = PreferenceManager.getDefaultSharedPreferences(CityManagerActivity.this).edit();
         pref = PreferenceManager.getDefaultSharedPreferences(CityManagerActivity.this);
         lastCity = pref.getString("last_city", "");
+        selectedIndex = -1;
     }
     private void initToolbarLayout(){
         collapsingToolbar =(CollapsingToolbarLayout) findViewById(R.id.city_manager_toolbar_layout);
@@ -133,16 +135,25 @@ public class CityManagerActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             }
+
+            @Override
+            public void onItemLongClick(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo, int position) {
+                selectedIndex = position;
+                menu.setHeaderTitle("选择操作");
+                menu.add(0, 0, 0, "删除");
+            }
+
         });
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(briefWeatherAdapter);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
     @Override
     public void onResume() {
         super.onResume();
         lastCity = pref.getString("last_city", "");
-        refreshListView();
+        refreshRecyclerView(REFRESH);
     }
 
     @Override
@@ -184,10 +195,10 @@ public class CityManagerActivity extends AppCompatActivity {
 
         pureWeatherDB.deleteWeatherInfo(cityName);
         //判断数据库是否有数据，如果有，则读取到cityList当中，并显示在ListView当中
-        refreshListView();
+        refreshRecyclerView(DELETE);
     }
 
-    private void refreshListView() {
+    private void refreshRecyclerView(int action) {
 
         //判断数据库是否有数据，如果有，则读取到cityList当中，并显示在ListView当中
         briefWeatherInfos = pureWeatherDB.loadWeatherInfo();
@@ -196,7 +207,15 @@ public class CityManagerActivity extends AppCompatActivity {
             for (BriefWeatherInfo w : briefWeatherInfos) {
                 dataList.add(w);
             }
-            briefWeatherAdapter.notifyDataSetChanged();
+            switch (action){
+                case REFRESH:
+                    briefWeatherAdapter.notifyDataSetChanged();
+                    break;
+                case DELETE:
+                    briefWeatherAdapter.notifyItemRemoved(selectedIndex);
+                    break;
+            }
+
         }
     }
 
@@ -205,6 +224,7 @@ public class CityManagerActivity extends AppCompatActivity {
         cityListView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
 
             public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+
                 menu.add(0, 0, 0, "删除");
                 // menu.add(0, 1, 0, "收藏");
                 // menu.add(0, 2, 0, "对比");
@@ -214,12 +234,9 @@ public class CityManagerActivity extends AppCompatActivity {
 
     // 长按菜单响应函数
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        selectedCity = (int) info.id;// 这里的info.id对应的就是数据库中_id的值
-
         switch (item.getItemId()) {
             case 0:
-                deleteCity(briefWeatherInfos.get(selectedCity).getCityName());
+                deleteCity(briefWeatherInfos.get(selectedIndex).getCityName());
                 // 添加操作
                 // Toast.makeText(ListOnLongClickActivity.this, "添加", Toast.LENGTH_SHORT).show();
                 break;
