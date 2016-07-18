@@ -41,9 +41,7 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-/**
- * Created by Administrator on 2016/6/10.
- */
+
 public class SearchActivity extends AppCompatActivity implements View.OnClickListener {
     public static final int PROVINCE = 0;
     public static final int CITY = 1;
@@ -59,6 +57,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     private PureWeatherDB pureWeatherDB;
     private SharedPreferences.Editor editor;
     private SharedPreferences pref;
+
 
     /*
      * 数据列表
