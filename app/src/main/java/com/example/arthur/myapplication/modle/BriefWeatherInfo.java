@@ -1,14 +1,12 @@
 package com.example.arthur.myapplication.modle;
 
-/**
- * Created by Administrator on 2016/6/9.
- */
 public class BriefWeatherInfo {
     private String nowTemp;
     private String cityName;
     private String condText;
     private String tempRange;
     private String updateTime;
+    private String imageCode;
 
     public String getNowTemp() {
         return nowTemp;
@@ -50,4 +48,11 @@ public class BriefWeatherInfo {
         this.updateTime = updateTime;
     }
 
+    public String getImageCode() {
+        return imageCode;
+    }
+
+    public void setImageCode(String imageCode) {
+        this.imageCode = imageCode;
+    }
 }

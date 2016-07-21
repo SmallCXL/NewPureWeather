@@ -166,14 +166,14 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 3:
                     Glide.with(MainActivity.this)
-                            .load(R.drawable.yanxi)
+                            .load(R.drawable.beijing)
                             .fitCenter()
                             .crossFade()
                             .into(((MyViewHolderTwo)holder).imageView);
                     break;
                 case 4:
                     Glide.with(MainActivity.this)
-                            .load(R.drawable.yangjiang)
+                            .load(R.drawable.beijing_2)
                             .fitCenter()
                             .crossFade()
                             .into(((MyViewHolderTwo)holder).imageView);

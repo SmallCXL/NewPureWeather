@@ -15,7 +15,10 @@ import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
@@ -35,8 +38,6 @@ import java.util.List;
  */
 public class CityManagerActivity extends AppCompatActivity {
 
-    private ListView cityListView;
-    private WeatherAdapter adapter;
     private List<BriefWeatherInfo> briefWeatherInfos;
     private List<BriefWeatherInfo> dataList = new ArrayList<>();
     final static private int DELETE = -1;
@@ -54,7 +55,6 @@ public class CityManagerActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private BriefWeatherAdapter briefWeatherAdapter;
 
-    private CollapsingToolbarLayout collapsingToolbar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -103,23 +103,24 @@ public class CityManagerActivity extends AppCompatActivity {
         selectedIndex = -1;
     }
     private void initToolbarLayout(){
-        collapsingToolbar =(CollapsingToolbarLayout) findViewById(R.id.city_manager_toolbar_layout);
-        toolbar = ((Toolbar) findViewById(R.id.city_manager_toolbar));
+        toolbar = (Toolbar) findViewById(R.id.city_manager_toolbar);
+        toolbar.setTitle("收藏列表");
+        toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true); //设置返回键可用
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        collapsingToolbar.setTitle("收藏列表");
-        collapsingToolbar.setExpandedTitleColor(Color.parseColor("#00FFFFFF"));
-        Glide.with(this)
-                .load(R.drawable.beijing_2)
-                .fitCenter()
-                .crossFade()
-                .into(new SimpleTarget<GlideDrawable>() {
-                    @Override
-                    public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
-                        collapsingToolbar.setBackground(resource);
-                    }
-                });
+
+//        collapsingToolbar.setExpandedTitleColor(Color.parseColor("#00FFFFFF"));
+//        Glide.with(this)
+//                .load(R.drawable.beijing_2)
+//                .fitCenter()
+//                .crossFade()
+//                .into(new SimpleTarget<GlideDrawable>() {
+//                    @Override
+//                    public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
+//                        collapsingToolbar.setBackground(resource);
+//                    }
+//                });
     }
     private void initRecyclerView() {
         mRecyclerView = ((RecyclerView) findViewById(R.id.city_manager_recycler_view));
@@ -186,7 +187,10 @@ public class CityManagerActivity extends AppCompatActivity {
                     lastCity = briefWeatherInfos.get(0).getCityName();
                 }
             }
-        } else {
+            //else lastCity不用变动
+
+        }
+        else {
             // 正在删除最后一个元素
             lastCity = "";
         }
@@ -212,28 +216,22 @@ public class CityManagerActivity extends AppCompatActivity {
                     briefWeatherAdapter.notifyDataSetChanged();
                     break;
                 case DELETE:
-                    briefWeatherAdapter.notifyItemRemoved(selectedIndex);
+//                    briefWeatherAdapter.notifyItemRemoved(selectedIndex);
+//                    selectedIndex = -1;
+                    briefWeatherAdapter.notifyDataSetChanged();
                     break;
             }
-
         }
-    }
-
-    private void ItemOnLongClick1() {
-        //注：setOnCreateContextMenuListener是与下面onContextItemSelected配套使用的
-        cityListView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-
-            public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-
-                menu.add(0, 0, 0, "删除");
-                // menu.add(0, 1, 0, "收藏");
-                // menu.add(0, 2, 0, "对比");
-            }
-        });
+        else {
+            Intent intent = new Intent(CityManagerActivity.this, SearchActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     // 长按菜单响应函数
     public boolean onContextItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             case 0:
                 deleteCity(briefWeatherInfos.get(selectedIndex).getCityName());

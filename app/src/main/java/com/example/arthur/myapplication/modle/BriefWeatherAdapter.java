@@ -36,6 +36,7 @@ public class BriefWeatherAdapter extends RecyclerView.Adapter<BriefWeatherAdapte
                 .inflate(R.layout.new_city_manager_activity_item,parent,false));
     }
 
+    Class<com.example.arthur.myapplication.R.drawable> myDrawableClass = R.drawable.class;
     @Override
     public void onBindViewHolder(BriefWeatherViewHolder holder, int position) {
         holder.nowTemp.setText(weatherInfos.get(position).getNowTemp());
@@ -43,8 +44,18 @@ public class BriefWeatherAdapter extends RecyclerView.Adapter<BriefWeatherAdapte
         holder.nowCondition.setText(weatherInfos.get(position).getCondText());
         holder.tempRange.setText(weatherInfos.get(position).getTempRange());
         holder.updateTime.setText(weatherInfos.get(position).getUpdateTime());
+
+        Integer value;
+        try {
+            value = myDrawableClass.getDeclaredField(weatherInfos.get(position).getImageCode()).getInt(null);
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            value = R.drawable.moren;
+        }
+
         Glide.with(context)
-                .load(R.drawable.xiayu2)
+                .load(value)
                 .fitCenter()
                 .crossFade()
                 .into(new SimpleTarget<GlideDrawable>() {

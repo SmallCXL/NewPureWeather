@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.example.arthur.myapplication.R;
 import com.example.arthur.myapplication.db.PureWeatherOpenHelper;
 
 import java.util.ArrayList;
@@ -15,7 +16,9 @@ import java.util.List;
  */
 public class PureWeatherDB {
 
-
+/*
+将参数名重新定义
+ */
     private Context mContext;
 
     /*
@@ -102,7 +105,33 @@ public class PureWeatherDB {
             //now
             value.put("now_cond", weatherInfo.getNow().getCond().getTxt());
             value.put("now_temp", weatherInfo.getNow().getTmp());
-            value.put("image_code", weatherInfo.getNow().getCond().getCode());
+
+            //处理背景图片
+            String imageCode = weatherInfo.getNow().getCond().getCode();
+            int iCode = Integer.parseInt(imageCode);
+            String imageName;
+            if (iCode == 100){
+                imageName = "qing";
+            }
+            else if (iCode >100 && iCode < 300){
+                imageName = "yun";
+            }
+            else if (iCode >= 300 && iCode < 400){
+                imageName = "yu";
+            }
+            else if (iCode >= 400 && iCode < 500){
+                imageName = "xue";
+            }
+            else if (iCode >= 500 && iCode < 900)
+            {
+                imageName = "wu";
+            }
+            else {
+                imageName = "moren";
+            }
+            value.put("image_code", imageName);
+
+
             value.put("humi_value", weatherInfo.getNow().getHum());
             //forecast
             value.put("sunset_time", weatherInfo.getDailyForecast().get(0).getAstro().getSs());
@@ -129,11 +158,12 @@ public class PureWeatherDB {
 
 
     /*
-     * 从数据库中读取已保存的天气信息
+     * 加载简要的天气信息
      */
     public List<BriefWeatherInfo> loadWeatherInfo(){
         List<BriefWeatherInfo> infoList = null;
         Cursor cursor ;
+
         cursor = db.query("Weather", null, null, null, null, null, null);
         if(cursor.moveToFirst()){
             infoList = new ArrayList<>();
@@ -156,8 +186,8 @@ public class PureWeatherDB {
                 StringBuilder updateTime = new StringBuilder().append(cursor.getString(cursor.getColumnIndex("update_time"))).append("更新");
                 info.setUpdateTime(updateTime.toString().substring(5));
 
-//
-//                info.setImageCode(cursor.getString(cursor.getColumnIndex("image_code")));
+                String imageCode = cursor.getString(cursor.getColumnIndex("image_code"));
+                info.setImageCode(imageCode);
 
                 infoList.add(info);
             }while(cursor.moveToNext());
@@ -169,11 +199,13 @@ public class PureWeatherDB {
         return infoList;
     }
 
+    /*
+    加载完整的天气信息
+     */
     public Cursor loadWeatherInfo(String cityName){
-        Cursor cursor = null;
+        Cursor cursor ;
         cursor = db.query("Weather", null, "city_name = ?", new String[]{cityName}, null, null, null);
         return cursor;
-
     }
 
     public int deleteWeatherInfo(String cityName){

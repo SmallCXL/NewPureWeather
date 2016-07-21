@@ -141,16 +141,17 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         collapsingToolbar.setTitle("选择城市");
         collapsingToolbar.setExpandedTitleColor(Color.parseColor("#003F51B5"));
-        Glide.with(this)
-                .load(R.drawable.beijing_2)
-                .fitCenter()
-                .crossFade()
-                .into(new SimpleTarget<GlideDrawable>() {
-                    @Override
-                    public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
-                        collapsingToolbar.setBackground(resource);
-                    }
-                });
+
+//        Glide.with(this)
+//                .load(R.drawable.beijing_2)
+//                .fitCenter()
+//                .crossFade()
+//                .into(new SimpleTarget<GlideDrawable>() {
+//                    @Override
+//                    public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
+//                        collapsingToolbar.setBackground(resource);
+//                    }
+//                });
     }
 
     private void initRecyclerView() {
