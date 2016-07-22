@@ -98,7 +98,9 @@ public class PureWeatherDB {
             //basic
             value.put("city_name", weatherInfo.getBasic().getCity());
             value.put("city_id", weatherInfo.getBasic().getId());
-            value.put("update_time", weatherInfo.getBasic().getUpdate().getLoc());
+
+            StringBuilder updateTime = new StringBuilder().append(weatherInfo.getBasic().getUpdate().getLoc()).append("更新");
+            value.put("update_time", updateTime.toString().substring(5));
 //            //aqi
 //            value.put("aqi_value", weatherInfo.getAqi().getCity().getAqi());
 //            value.put("pm25_value", weatherInfo.getAqi().getCity().getPm25());
@@ -180,11 +182,10 @@ public class PureWeatherDB {
                 info.setTempRange(tempRange.toString());
 
                 StringBuilder nowTemp = new StringBuilder().append(cursor.getString(cursor.getColumnIndex("now_temp"))).append("°");
-
                 info.setNowTemp(nowTemp.toString());
 
-                StringBuilder updateTime = new StringBuilder().append(cursor.getString(cursor.getColumnIndex("update_time"))).append("更新");
-                info.setUpdateTime(updateTime.toString().substring(5));
+                //StringBuilder updateTime = new StringBuilder().append(cursor.getString(cursor.getColumnIndex("update_time"))).append("更新");
+                info.setUpdateTime(cursor.getString(cursor.getColumnIndex("update_time")));
 
                 String imageCode = cursor.getString(cursor.getColumnIndex("image_code"));
                 info.setImageCode(imageCode);

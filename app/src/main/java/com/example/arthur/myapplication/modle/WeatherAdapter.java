@@ -36,7 +36,7 @@ public class WeatherAdapter extends ArrayAdapter<BriefWeatherInfo> {
             VH.cityName = (TextView) view.findViewById(R.id.city_manager_card_view_title);
             VH.condText = (TextView) view.findViewById(R.id.city_manager_card_view_condition);
             VH.tempRange = (TextView) view.findViewById(R.id.city_manager_card_view_temp_range);
-//            VH.background = (ImageView) view.findViewById(R.id.city_manager_card_view_background);
+//            VH.background= (ImageView) view.findViewById(R.id.city_manager_card_view_background);
             view.setTag(VH);
         }
         else{

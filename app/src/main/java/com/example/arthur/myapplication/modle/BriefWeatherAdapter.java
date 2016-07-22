@@ -17,6 +17,9 @@ import com.example.arthur.myapplication.R;
 
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 /**
  * Created by Administrator on 2016/7/18.
  */
@@ -39,61 +42,48 @@ public class BriefWeatherAdapter extends RecyclerView.Adapter<BriefWeatherAdapte
     Class<com.example.arthur.myapplication.R.drawable> myDrawableClass = R.drawable.class;
     @Override
     public void onBindViewHolder(BriefWeatherViewHolder holder, int position) {
-        holder.nowTemp.setText(weatherInfos.get(position).getNowTemp());
-        holder.cityName.setText(weatherInfos.get(position).getCityName());
-        holder.nowCondition.setText(weatherInfos.get(position).getCondText());
-        holder.tempRange.setText(weatherInfos.get(position).getTempRange());
-        holder.updateTime.setText(weatherInfos.get(position).getUpdateTime());
-
-        Integer value;
-        try {
-            value = myDrawableClass.getDeclaredField(weatherInfos.get(position).getImageCode()).getInt(null);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            value = R.drawable.moren;
-        }
-
-        Glide.with(context)
-                .load(value)
-                .fitCenter()
-                .crossFade()
-                .into(new SimpleTarget<GlideDrawable>() {
-                    @Override
-                    public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
-                        holder.nowTemp.setBackground(resource);
-                    }
-                });
-        if(mOnItemClickListener != null){
-            holder.cardView.setOnClickListener(v -> mOnItemClickListener.onItemClick(v, position));
-            holder.cardView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-                @Override
-                public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-                    mOnItemClickListener.onItemLongClick(menu, v, menuInfo, position);
-                }
-            });
-        }
+        holder.bind(context, weatherInfos.get(position), position);
     }
 
     @Override
     public int getItemCount() {
         return weatherInfos.size();
     }
+
     class BriefWeatherViewHolder extends RecyclerView.ViewHolder{
-        CardView cardView;
-        TextView nowTemp;
-        TextView cityName;
-        TextView nowCondition;
-        TextView tempRange;
-        TextView updateTime;
+        @Bind(R.id.city_manager_card_view)              CardView cardView;
+        @Bind(R.id.city_manager_card_view_now_temp)     TextView nowTemp;
+        @Bind(R.id.city_manager_card_view_title)        TextView cityName;
+        @Bind(R.id.city_manager_card_view_condition)    TextView nowCondition;
+        @Bind(R.id.city_manager_card_view_temp_range)   TextView tempRange;
+        @Bind(R.id.city_manager_card_view_update_time)  TextView updateTime;
         public BriefWeatherViewHolder(View itemView) {
             super(itemView);
-            cardView = ((CardView) itemView.findViewById(R.id.city_manager_card_view));
-            nowTemp = ((TextView) itemView.findViewById(R.id.city_manager_card_view_now_temp));
-            cityName = ((TextView) itemView.findViewById(R.id.city_manager_card_view_title));
-            nowCondition = ((TextView) itemView.findViewById(R.id.city_manager_card_view_condition));
-            tempRange = ((TextView) itemView.findViewById(R.id.city_manager_card_view_temp_range));
-            updateTime = ((TextView) itemView.findViewById(R.id.city_manager_card_view_update_time));
+            ButterKnife.bind(this, itemView);
+        }
+        public void bind(Context context, BriefWeatherInfo briefWeatherInfo, int position){
+            nowTemp.setText(briefWeatherInfo.getNowTemp());
+            cityName.setText(briefWeatherInfo.getCityName());
+            nowCondition.setText(briefWeatherInfo.getCondText());
+            tempRange.setText(briefWeatherInfo.getTempRange());
+            updateTime.setText(briefWeatherInfo.getUpdateTime());
+
+            Integer value;
+            try {
+                value = myDrawableClass.getDeclaredField(briefWeatherInfo.getImageCode()).getInt(null);
+            } catch (Exception e) {
+                e.printStackTrace();
+                value = R.drawable.moren;
+            }
+
+            MyImageLoader.load(context, value ,nowTemp);
+
+            if(mOnItemClickListener != null){
+                cardView.setOnClickListener(v -> mOnItemClickListener.onItemClick(v, position));
+                cardView.setOnCreateContextMenuListener((menu, v, menuInfo) ->
+                        mOnItemClickListener.onItemLongClick(menu, v, menuInfo, position)
+                );
+            }
         }
     }
 

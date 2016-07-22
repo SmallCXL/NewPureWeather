@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case TYPE_TWO:
                     Glide.with(MainActivity.this)
-                            .load(R.drawable.beijing)
+                            .load(R.drawable.qing)
                             .fitCenter()
                             .crossFade()
                             .into(((MyViewHolderTwo) holder).imageView);
@@ -159,21 +159,21 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 2:
                     Glide.with(MainActivity.this)
-                            .load(R.drawable.beijing_2)
+                            .load(R.drawable.yu)
                             .fitCenter()
                             .crossFade()
                             .into(((MyViewHolderTwo)holder).imageView);
                     break;
                 case 3:
                     Glide.with(MainActivity.this)
-                            .load(R.drawable.beijing)
+                            .load(R.drawable.yun)
                             .fitCenter()
                             .crossFade()
                             .into(((MyViewHolderTwo)holder).imageView);
                     break;
                 case 4:
                     Glide.with(MainActivity.this)
-                            .load(R.drawable.beijing_2)
+                            .load(R.drawable.wu)
                             .fitCenter()
                             .crossFade()
                             .into(((MyViewHolderTwo)holder).imageView);

@@ -3,8 +3,8 @@ package com.example.arthur.myapplication.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
-import com.example.arthur.myapplication.service.AutoUpdateService;
+//
+//import com.example.arthur.myapplication.service.AutoUpdateService;
 
 /**
  * Created by Administrator on 2016/6/9.
@@ -12,8 +12,8 @@ import com.example.arthur.myapplication.service.AutoUpdateService;
 public class AutoUpdateReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent arg1) {
-        // TODO Auto-generated method stub
-        Intent i = new Intent(context, AutoUpdateService.class);
-        context.startService(i);
+//        // TODO Auto-generated method stub
+//        Intent i = new Intent(context, AutoUpdateService.class);
+//        context.startService(i);
     }
 }

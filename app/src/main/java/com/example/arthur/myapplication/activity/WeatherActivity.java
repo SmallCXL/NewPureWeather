@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -33,7 +34,7 @@ import com.example.arthur.myapplication.httpUtils.NetworkRequest;
 import com.example.arthur.myapplication.modle.CharSetEvent;
 import com.example.arthur.myapplication.modle.PureWeatherDB;
 import com.example.arthur.myapplication.modle.WeatherInfo;
-import com.example.arthur.myapplication.service.AutoUpdateService;
+//import com.example.arthur.myapplication.service.AutoUpdateService;
 import com.example.arthur.myapplication.utils.RxBus;
 import com.jakewharton.rxbinding.view.RxView;
 
@@ -79,6 +80,7 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView rainyPos;
     private TextView tempRange;
     private TextView humiValue;
+    private TextView updateTime;
     private ImageView toolbarBackground;
     private Toolbar toolbar;
     private DrawerLayout mDrawerLayout;
@@ -109,7 +111,7 @@ public class WeatherActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-        startService(new Intent(this, AutoUpdateService.class));
+//        startService(new Intent(this, AutoUpdateService.class));
         initView();
         initToolbar();
 
@@ -129,13 +131,11 @@ public class WeatherActivity extends AppCompatActivity {
     private void initToolbar() {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.weather_drawer_layout);
         toolbar = (Toolbar) findViewById(R.id.weather_toolbar);
-
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true); //设置返回键可用
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
-
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 toolbar, R.string.drawer_open,
                 R.string.drawer_close) {
@@ -188,7 +188,7 @@ public class WeatherActivity extends AppCompatActivity {
         humiValue = (TextView) findViewById(R.id.humidity);
         rainyPos = (TextView) findViewById(R.id.rainy_pos);
         tempRange = (TextView) findViewById(R.id.temp_range);
-
+        updateTime = ((TextView) findViewById(R.id.update_time));
 
         toolbarBackground = (ImageView) findViewById(R.id.image_view);
         chartTop = (LineChartView) findViewById(R.id.chart_top);
@@ -231,7 +231,7 @@ public class WeatherActivity extends AppCompatActivity {
         final LinearLayout headerBackground = (LinearLayout) headerLayout.findViewById(R.id.nav_header_linear_layout);
         navigationView.setItemTextColor(ColorStateList.valueOf(getColor(R.color.textColor)));
         Glide.with(this)
-                .load(R.drawable.beijing_2)
+                .load(R.drawable.background)
                 .centerCrop()
                 .crossFade()
                 .into(new SimpleTarget<GlideDrawable>() {
@@ -322,16 +322,16 @@ public class WeatherActivity extends AppCompatActivity {
         chartTop.setZoomType(null);
     }
 
-
-    private void startService() {
-        Intent intent = new Intent(this, AutoUpdateService.class);
-        startService(intent);
-    }
-
-    private void stopService() {
-        Intent intent = new Intent(this, AutoUpdateService.class);
-        stopService(intent);
-    }
+//
+//    private void startService() {
+//        Intent intent = new Intent(this, AutoUpdateService.class);
+//        startService(intent);
+//    }
+//
+//    private void stopService() {
+//        Intent intent = new Intent(this, AutoUpdateService.class);
+//        stopService(intent);
+//    }
 
     @Override
     public void onResume() {
@@ -390,6 +390,7 @@ public class WeatherActivity extends AppCompatActivity {
                     .append(cursor.getString(cursor.getColumnIndex("min_temp"))).append("°C").toString();
             tempRange.setText(range);
 
+            updateTime.setText(cursor.getString(cursor.getColumnIndex("update_time")));
         } else {
             //读取不到数据库的数据，做处理
         }

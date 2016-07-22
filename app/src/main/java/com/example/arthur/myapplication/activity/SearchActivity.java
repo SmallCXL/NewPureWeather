@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -84,7 +85,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     private CityAdapter cityAdapter;
 
     private CollapsingToolbarLayout collapsingToolbar;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,8 +95,9 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
     private void init() {
         initData();
-        initView();
+
         initToolbarLayout();
+        initView();
         initRecyclerView();
     }
 
@@ -136,6 +137,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     private void initToolbarLayout(){
         collapsingToolbar =(CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
         toolbar = ((Toolbar) findViewById(R.id.weather_toolbar));
+
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true); //设置返回键可用
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
