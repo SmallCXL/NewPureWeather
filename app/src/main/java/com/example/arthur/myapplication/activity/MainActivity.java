@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
             switch (viewType){
                 case TYPE_ONE:
                     return new MyViewHolderOne(LayoutInflater.from(
-                            MainActivity.this).inflate(R.layout.recycle_view_item, parent,false));
+                            MainActivity.this).inflate(R.layout.item_city_list, parent,false));
                 case 1:
                 case 2:
                 case 3:

@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,6 +14,7 @@ import com.example.arthur.myapplication.R;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import lecho.lib.hellocharts.view.LineChartView;
 
 public class TempWeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private Context context;
@@ -44,13 +46,13 @@ public class TempWeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         View view;
         switch (viewType){
             case NOW_CONDITION:
-                view = LayoutInflater.from(context).inflate(R.layout.now_condition_item, parent, false);
+                view = LayoutInflater.from(context).inflate(R.layout.item_now_condition, parent, false);
                 return new NowConditionViewHolder(view);
             case DAILY_FORECAST:
-                view = LayoutInflater.from(context).inflate(R.layout.now_condition_item, parent, false);
+                view = LayoutInflater.from(context).inflate(R.layout.item_daily_forecast, parent, false);
                 return new NowConditionViewHolder(view);
             case SUGGESTION:
-                view = LayoutInflater.from(context).inflate(R.layout.now_condition_item, parent, false);
+                view = LayoutInflater.from(context).inflate(R.layout.item_suggestion, parent, false);
                 return new NowConditionViewHolder(view);
         }
         return null;
@@ -61,6 +63,12 @@ public class TempWeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         switch (viewType){
             case NOW_CONDITION:
                 ((NowConditionViewHolder) holder).bind(context, weatherInfo);
+                break;
+            case DAILY_FORECAST:
+                ((DailyForecastViewHolder) holder).bind(context, weatherInfo);
+                break;
+            case SUGGESTION:
+                ((SuggestionViewHolder) holder).bind(context, weatherInfo);
                 break;
         }
     }
@@ -95,6 +103,43 @@ public class TempWeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             StringBuilder syncTime = new StringBuilder().append(weatherInfo.getBasic().getUpdate().getUtc()).append("更新");
             updateTime.setText(syncTime.toString().substring(5));
+        }
+    }
+
+    class DailyForecastViewHolder extends RecyclerView.ViewHolder{
+        @Bind(R.id.data_char_view)      LineChartView lineChartView;
+        @Bind(R.id.max_temp_btn)        Button maxTemp;
+        @Bind(R.id.min_temp_btn)        Button minTemp;
+        @Bind(R.id.humidity_btn)        Button humidity;
+        @Bind(R.id.rainy_pos_btn)       Button rainyPos;
+        public DailyForecastViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+        public void bind(Context context, WeatherInfo weatherInfo){
+
+        }
+    }
+
+    class SuggestionViewHolder extends RecyclerView.ViewHolder{
+        @Bind(R.id.sport_suggestion_brf)    TextView sportSuggestionBrf;
+        @Bind(R.id.sport_suggestion)        TextView sportSuggestion;
+        @Bind(R.id.travel_suggestion_brf)   TextView travelSuggestionBrf;
+        @Bind(R.id.travel_suggestion)       TextView travelSuggestion;
+        @Bind(R.id.car_wash_suggestion_brf) TextView carWashSuggestionBrf;
+        @Bind(R.id.car_wash_suggestion)     TextView carWashSuggestion;
+
+        public SuggestionViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+        public void bind(Context context, WeatherInfo weatherInfo){
+            sportSuggestionBrf.setText(weatherInfo.getSuggestion().getSport().getBrf());
+            sportSuggestion.setText(weatherInfo.getSuggestion().getSport().getTxt());
+            travelSuggestionBrf.setText(weatherInfo.getSuggestion().getTrav().getBrf());
+            travelSuggestion.setText(weatherInfo.getSuggestion().getTrav().getTxt());
+            carWashSuggestionBrf.setText(weatherInfo.getSuggestion().getCw().getBrf());
+            carWashSuggestion.setText(weatherInfo.getSuggestion().getCw().getTxt());
         }
     }
 
