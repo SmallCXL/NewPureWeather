@@ -15,8 +15,12 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -31,7 +35,9 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.example.arthur.myapplication.R;
 import com.example.arthur.myapplication.httpUtils.NetworkRequest;
+import com.example.arthur.myapplication.modle.BriefWeatherAdapter;
 import com.example.arthur.myapplication.modle.CharSetEvent;
+import com.example.arthur.myapplication.modle.MyImageLoader;
 import com.example.arthur.myapplication.modle.PureWeatherDB;
 import com.example.arthur.myapplication.modle.WeatherInfo;
 //import com.example.arthur.myapplication.service.AutoUpdateService;
@@ -87,6 +93,7 @@ public class WeatherActivity extends AppCompatActivity {
     private ActionBarDrawerToggle mDrawerToggle;
     private LineChartView chartTop;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private NavigationView navigationView;
 
     private LineChartData lineData;
     private PureWeatherDB pureWeatherDB;
@@ -95,6 +102,7 @@ public class WeatherActivity extends AppCompatActivity {
 
     private Subscriber<List<WeatherInfo>> subscriber;
     private String lastCity = null;
+    private RecyclerView mRecyclerView;
 
     @TargetApi(Build.VERSION_CODES.M)
     @Override
@@ -111,11 +119,7 @@ public class WeatherActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-//        startService(new Intent(this, AutoUpdateService.class));
-        initView();
-        initToolbar();
-
-        initNavigationView();
+        init();
         onDataButtonClick(getColor(R.color.redPrimary));
         showWeather();
     }
@@ -126,7 +130,12 @@ public class WeatherActivity extends AppCompatActivity {
         lastCity = pref.getString("last_city", "");
         pureWeatherDB = PureWeatherDB.getInstance(this);
     }
-
+    private void init(){
+        initView();
+        initToolbar();
+        initNavigationView();
+        initSwipeRefreshLayout();
+    }
 
     private void initToolbar() {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.weather_drawer_layout);
@@ -139,39 +148,23 @@ public class WeatherActivity extends AppCompatActivity {
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 toolbar, R.string.drawer_open,
                 R.string.drawer_close) {
-
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-
             }
-
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-
             }
         };
         mDrawerToggle.syncState();
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+    }
 
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
-
-        //下拉刷新 .这里的Subscriber必须用匿名的，如果用事先定义好的观察者只能响应一次，待研究
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            lastCity = pref.getString("last_city", "");
-            NetworkRequest
-                    .getWeatherWithName(lastCity)
-                    .subscribeOn(Schedulers.newThread())
-                    .flatMap(weatherResponse -> Observable.just(weatherResponse.getWeatherInfos()))
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(weatherInfos -> {
-                        pureWeatherDB.saveWeather(weatherInfos.get(0));
-                        showWeather();
-                        swipeRefreshLayout.setRefreshing(false);
-                        Toast.makeText(WeatherActivity.this, "刷新完成~~", Toast.LENGTH_SHORT).show();
-                    });
-        });
-
-        swipeRefreshLayout.setColorSchemeResources(R.color.indigoPrimary, R.color.greenPrimary, R.color.redPrimary);
+    private void initRecyclerView(){
+//        mRecyclerView = ((RecyclerView) findViewById(R.id.city_manager_recycler_view));
+//        briefWeatherAdapter = new BriefWeatherAdapter(CityManagerActivity.this, dataList);
+//        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        mRecyclerView.setAdapter(briefWeatherAdapter);
+//        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -217,7 +210,7 @@ public class WeatherActivity extends AppCompatActivity {
         RxView.clicks(btn4)
                 .throttleFirst(500, TimeUnit.MICROSECONDS)
                 .subscribe(aVoid -> {
-                    RxBus.getInstance().post(new CharSetEvent(getColor(R.color.indigoPrimary)));
+                    RxBus.getInstance().post(new CharSetEvent(R.color.indigoPrimary));
                 });
         allSubscription.add(RxBus.getInstance()
                 .toObserverable(CharSetEvent.class)
@@ -226,20 +219,13 @@ public class WeatherActivity extends AppCompatActivity {
 
     @TargetApi(Build.VERSION_CODES.M)
     private void initNavigationView() {
-        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         View headerLayout = navigationView.inflateHeaderView(R.layout.nav_header_layout);
         final LinearLayout headerBackground = (LinearLayout) headerLayout.findViewById(R.id.nav_header_linear_layout);
         navigationView.setItemTextColor(ColorStateList.valueOf(getColor(R.color.textColor)));
-        Glide.with(this)
-                .load(R.drawable.background)
-                .centerCrop()
-                .crossFade()
-                .into(new SimpleTarget<GlideDrawable>() {
-                    @Override
-                    public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
-                        headerBackground.setBackground(resource);
-                    }
-                });
+
+        MyImageLoader.load(WeatherActivity.this, R.drawable.background, headerBackground);
+
         navigationView.setNavigationItemSelectedListener(item -> {
             switch (item.getItemId()) {
                 case (R.id.nav_my_list):
@@ -258,6 +244,26 @@ public class WeatherActivity extends AppCompatActivity {
             }
             return false;
         });
+    }
+
+    private void initSwipeRefreshLayout() {
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        //下拉刷新 .这里的Subscriber必须用匿名的，如果用事先定义好的观察者只能响应一次，待研究
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            lastCity = pref.getString("last_city", "");
+            NetworkRequest
+                    .getWeatherWithName(lastCity)
+                    .subscribeOn(Schedulers.newThread())
+                    .flatMap(weatherResponse -> Observable.just(weatherResponse.getWeatherInfos()))
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(weatherInfos -> {
+                        pureWeatherDB.saveWeather(weatherInfos.get(0));
+                        showWeather();
+                        swipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(WeatherActivity.this, "刷新完成~~", Toast.LENGTH_SHORT).show();
+                    });
+        });
+        swipeRefreshLayout.setColorSchemeResources(R.color.indigoPrimary, R.color.greenPrimary, R.color.redPrimary);
     }
 
     private void onDataButtonClick(CharSetEvent charSetEvent) {
@@ -322,17 +328,6 @@ public class WeatherActivity extends AppCompatActivity {
         chartTop.setZoomType(null);
     }
 
-//
-//    private void startService() {
-//        Intent intent = new Intent(this, AutoUpdateService.class);
-//        startService(intent);
-//    }
-//
-//    private void stopService() {
-//        Intent intent = new Intent(this, AutoUpdateService.class);
-//        stopService(intent);
-//    }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -346,58 +341,44 @@ public class WeatherActivity extends AppCompatActivity {
         if (allSubscription != null && !allSubscription.isUnsubscribed())
             allSubscription.unsubscribe();
     }
+
     Class<com.example.arthur.myapplication.R.drawable> myDrawableClass = R.drawable.class;
     private void showWeather() {
-        // TODO Auto-generated method stub
-
-//        syncButton.setText("上次同步：" + pref.getString("sync_time", ""));
-
-        Cursor cursor = pureWeatherDB.loadWeatherInfo(lastCity);
-        if (cursor.moveToNext()) {
-
+        WeatherInfo weatherInfo = pureWeatherDB.mloadWeatherInfo(lastCity);
+        if (weatherInfo != null){
             Integer value;
             try {
-                String imageName = cursor.getString(cursor.getColumnIndex("image_code")) +"_b";
+                String imageName = weatherInfo.now.cond.code +"_b";
                 value = myDrawableClass.getDeclaredField(imageName).getInt(null);
             } catch (Exception e) {
                 e.printStackTrace();
                 value = R.drawable.moren;
             }
-            Glide.with(this)
-                    .load(value)
-                    .centerCrop()
-                    .crossFade()
-                    .into(toolbarBackground);
 
-            collapsingToolbar.setTitle(cursor.getString(cursor.getColumnIndex("city_name")));
-            sportSuggestion.setText(cursor.getString(cursor.getColumnIndex("sport_suggestion")));
-            sportSuggestionBrf.setText(cursor.getString(cursor.getColumnIndex("sport_suggestion_brf")));
-            travelSuggestion.setText(cursor.getString(cursor.getColumnIndex("travel_suggestion")));
-            travelSuggestionBrf.setText(cursor.getString(cursor.getColumnIndex("travel_suggestion_brf")));
-            carWashSuggestion.setText(cursor.getString(cursor.getColumnIndex("car_wash_suggestion")));
-            carWashSuggestionBrf.setText(cursor.getString(cursor.getColumnIndex("car_wash_suggestion_brf")));
+            MyImageLoader.load(WeatherActivity.this, value, toolbarBackground);
 
-            nowTemp.setText(cursor.getString(cursor.getColumnIndex("now_temp")) + "°");
+            collapsingToolbar.setTitle(weatherInfo.basic.city);
+            sportSuggestion.setText(weatherInfo.suggestion.sport.txt);
+            sportSuggestionBrf.setText(weatherInfo.suggestion.sport.brf);
+            travelSuggestion.setText(weatherInfo.suggestion.trav.txt);
+            travelSuggestionBrf.setText(weatherInfo.suggestion.trav.brf);
+            carWashSuggestion.setText(weatherInfo.suggestion.cw.txt);
+            carWashSuggestionBrf.setText(weatherInfo.suggestion.cw.brf);
 
-            humiValue.setText(cursor.getString(cursor.getColumnIndex("humi_value")) + "%");
+            nowTemp.setText(weatherInfo.now.tmp + "°");
 
-            String sunCond = new StringBuilder().append(cursor.getString(cursor.getColumnIndex("now_cond"))).toString();
-            nowCond.setText(sunCond);
+            humiValue.setText(weatherInfo.now.hum + "%");
+
+            nowCond.setText(weatherInfo.now.cond.txt);
             //forecastDate.setText(pref.getString("forecast_date", ""));
-            rainyPos.setText(cursor.getString(cursor.getColumnIndex("rainy_pos")) + "%");
+            rainyPos.setText(weatherInfo.dailyForecast.get(0).pop + "%");
 
-            String range = new StringBuilder().append(cursor.getString(cursor.getColumnIndex("max_temp"))).append("°C ~ ")
-                    .append(cursor.getString(cursor.getColumnIndex("min_temp"))).append("°C").toString();
+            String range = new StringBuilder().append(weatherInfo.dailyForecast.get(0).tmp.max).append("°C ~ ")
+                    .append(weatherInfo.dailyForecast.get(0).tmp.min).append("°C").toString();
             tempRange.setText(range);
 
-            updateTime.setText(cursor.getString(cursor.getColumnIndex("update_time")));
-        } else {
-            //读取不到数据库的数据，做处理
+            updateTime.setText(weatherInfo.basic.update.utc);
         }
-        if (cursor != null) {
-            cursor.close();
-        }
-        //closeMyDialog();//加载完成，关闭对话框
 
     }
 
@@ -438,7 +419,13 @@ public class WeatherActivity extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         // TODO Auto-generated method stub
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            exitBy2Click(); //调用双击退出函数
+            if (mDrawerLayout.isDrawerOpen(navigationView)){
+                mDrawerLayout.closeDrawer(navigationView);
+            }
+            else {
+                exitBy2Click(); //调用双击退出函数
+            }
+
         }
         return false;
     }

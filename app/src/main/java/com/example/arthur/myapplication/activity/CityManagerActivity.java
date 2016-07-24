@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,20 +14,11 @@ import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ExpandableListView;
-import android.widget.ListView;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.example.arthur.myapplication.R;
 import com.example.arthur.myapplication.modle.BriefWeatherAdapter;
 import com.example.arthur.myapplication.modle.PureWeatherDB;
 import com.example.arthur.myapplication.modle.BriefWeatherInfo;
-import com.example.arthur.myapplication.modle.WeatherAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,24 +60,6 @@ public class CityManagerActivity extends AppCompatActivity {
             finish();
         }
 
-
-//        cityListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//
-//            @Override
-//            public void onItemClick(AdapterView<?> arg0, View arg1, int index,
-//                                    long arg3) {
-//                // TODO Auto-generated method stub
-//                lastCity = briefWeatherInfos.get(index).getCityName();
-//                editor.putString("last_city", lastCity);
-//                editor.commit();
-//
-//                Intent intent = new Intent(CityManagerActivity.this, WeatherActivity.class);
-//                startActivity(intent);
-//                finish();
-//            }
-//
-//        });
-//        ItemOnLongClick1();
     }
 
     private void init() {
@@ -109,18 +81,6 @@ public class CityManagerActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true); //设置返回键可用
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-//        collapsingToolbar.setExpandedTitleColor(Color.parseColor("#00FFFFFF"));
-//        Glide.with(this)
-//                .load(R.drawable.beijing_2)
-//                .fitCenter()
-//                .crossFade()
-//                .into(new SimpleTarget<GlideDrawable>() {
-//                    @Override
-//                    public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
-//                        collapsingToolbar.setBackground(resource);
-//                    }
-//                });
     }
     private void initRecyclerView() {
         mRecyclerView = ((RecyclerView) findViewById(R.id.city_manager_recycler_view));
@@ -188,7 +148,6 @@ public class CityManagerActivity extends AppCompatActivity {
                 }
             }
             //else lastCity不用变动
-
         }
         else {
             // 正在删除最后一个元素
@@ -205,7 +164,7 @@ public class CityManagerActivity extends AppCompatActivity {
     private void refreshRecyclerView(int action) {
 
         //判断数据库是否有数据，如果有，则读取到cityList当中，并显示在ListView当中
-        briefWeatherInfos = pureWeatherDB.loadWeatherInfo();
+        briefWeatherInfos = pureWeatherDB.loadBriefWeatherInfo();
         if (briefWeatherInfos.size() > 0) {
             dataList.clear();
             for (BriefWeatherInfo w : briefWeatherInfos) {

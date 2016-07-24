@@ -20,28 +20,79 @@ public class PureWeatherOpenHelper extends SQLiteOpenHelper {
      * 天气信息的建表语句
      */
     public static final String CREATE_WEATHER = "create table Weather (" +
-            "city_name, " +
+            "city_name text, " +
             "city_id text primary key, " +
             "update_time text, " +
-            "aqi_value text, " +
-            "pm25_value text, " +
-            "now_cond text, " +
-            "now_temp text, " +
-            "sunset_time text, " +
-            "sunrise_time text, " +
-            "forecast_date text, " +
-            "rainy_pos text, " +
-            "max_temp text, " +
-            "min_temp text, " +
-            "status text, " +
+            "now_condition text, " +
+            "now_temperature text, " +
             "image_code text, " +
+            "humidity text," +
+            "rainy_probability text, " +
+            "max_temperature text, " +
+            "min_temperature text, " +
+            "status text, " +
             "sport_suggestion text," +
-            "sport_suggestion_brf text," +
+            "sport_suggestion_brief text," +
             "travel_suggestion text," +
-            "travel_suggestion_brf text," +
+            "travel_suggestion_brief text," +
             "car_wash_suggestion text," +
-            "car_wash_suggestion_brf text," +
-            "humi_value text)";
+            "car_wash_suggestion_brief text," +
+
+            "forecast_1_date text," +
+            "forecast_1_humidity text," +
+            "forecast_1_rainy_pro text," +
+            "forecast_1_max_temp text," +
+            "forecast_1_min_temp text," +
+            "forecast_1_condition text," +
+            "forecast_1_image_code text," +
+
+            "forecast_2_date text," +
+            "forecast_2_humidity text," +
+            "forecast_2_rainy_pro text," +
+            "forecast_2_max_temp text," +
+            "forecast_2_min_temp text," +
+            "forecast_2_condition text," +
+            "forecast_2_image_code text," +
+
+            "forecast_3_date text," +
+            "forecast_3_humidity text," +
+            "forecast_3_rainy_pro text," +
+            "forecast_3_max_temp text," +
+            "forecast_3_min_temp text," +
+            "forecast_3_condition text," +
+            "forecast_3_image_code text," +
+
+            "forecast_4_date text," +
+            "forecast_4_humidity text," +
+            "forecast_4_rainy_pro text," +
+            "forecast_4_max_temp text," +
+            "forecast_4_min_temp text," +
+            "forecast_4_condition text," +
+            "forecast_4_image_code text," +
+
+            "forecast_5_date text," +
+            "forecast_5_humidity text," +
+            "forecast_5_rainy_pro text," +
+            "forecast_5_max_temp text," +
+            "forecast_5_min_temp text," +
+            "forecast_5_condition text," +
+            "forecast_5_image_code text," +
+
+            "forecast_6_date text," +
+            "forecast_6_humidity text," +
+            "forecast_6_rainy_pro text," +
+            "forecast_6_max_temp text," +
+            "forecast_6_min_temp text," +
+            "forecast_6_condition text," +
+            "forecast_6_image_code text," +
+
+            "forecast_7_date text," +
+            "forecast_7_humidity text," +
+            "forecast_7_rainy_pro text," +
+            "forecast_7_max_temp text," +
+            "forecast_7_min_temp text," +
+            "forecast_7_condition text," +
+            "forecast_7_image_code text)";
 
     public PureWeatherOpenHelper(Context context, String name,
                                  SQLiteDatabase.CursorFactory factory, int version) {

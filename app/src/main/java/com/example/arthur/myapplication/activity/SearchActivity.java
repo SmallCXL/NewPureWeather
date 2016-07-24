@@ -178,7 +178,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                                 .doOnError(throwable ->
                                         Toast.makeText(SearchActivity.this, "网络好像不给力，请重试...", Toast.LENGTH_SHORT).show())
                                 .subscribe(weatherInfo -> {
-                                    switch (weatherInfo.getStatus()) {
+                                    switch (weatherInfo.status) {
                                         case "ok":
                                             pureWeatherDB.saveWeather(weatherInfo);
                                             lastCity = selectedRegion.getName();
@@ -324,8 +324,8 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                             })
                             .subscribe(weatherInfo -> {
                                 String item;
-                                if (weatherInfo.getStatus().equals("ok")) {
-                                    item = weatherInfo.getBasic().getCity();
+                                if (weatherInfo.status.equals("ok")) {
+                                    item = weatherInfo.basic.city;
                                     tempInfo = weatherInfo;
                                 } else {
                                     item = SEARCH_FAIL;
