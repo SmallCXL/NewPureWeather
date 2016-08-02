@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.arthur.myapplication.R;
+import com.example.arthur.myapplication.utils.ImageCodeConverter;
 
 import java.util.List;
 
@@ -62,17 +63,9 @@ public class BriefWeatherAdapter extends RecyclerView.Adapter<BriefWeatherAdapte
             cityName.setText(briefWeatherInfo.getCityName());
             nowCondition.setText(briefWeatherInfo.getCondText());
             tempRange.setText(briefWeatherInfo.getTempRange());
-            updateTime.setText(briefWeatherInfo.getUpdateTime());
+            updateTime.setText(briefWeatherInfo.getUpdateTime().substring(5) + " 发布");
 
-            Integer value;
-            try {
-                value = myDrawableClass.getDeclaredField(briefWeatherInfo.getImageCode()).getInt(null);
-            } catch (Exception e) {
-                e.printStackTrace();
-                value = R.drawable.moren;
-            }
-
-            MyImageLoader.load(context, value ,nowTemp);
+            MyImageLoader.load(context, ImageCodeConverter.getBriefBackgroundResource(briefWeatherInfo.getImageCode()) ,nowTemp);
 
             if(mOnItemClickListener != null){
                 cardView.setOnClickListener(v -> mOnItemClickListener.onItemClick(v, position));

@@ -55,7 +55,6 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.CityViewHolder
             super(itemView);
             cardView = ((CardView) itemView.findViewById(R.id.city_list_card_view));
             textView = (TextView) itemView.findViewById(R.id.search_city_recycle_view_city_title);
-
         }
     }
 

@@ -83,10 +83,6 @@ public class WeatherInfo implements Serializable {
 //
 //        @SerializedName("city") public CityInfo city;
 //
-//        public CityInfo getCity() {
-//            return city;
-//        }
-//
 //        public static class CityInfo implements Serializable {
 //            @SerializedName("aqi")  public String aqi;
 //            @SerializedName("co")   public String co;
@@ -96,38 +92,6 @@ public class WeatherInfo implements Serializable {
 //            @SerializedName("pm25") public String pm25;
 //            @SerializedName("qlty") public String qlty;
 //            @SerializedName("so2")  public String so2;
-//
-//            public String getAqi() {
-//                return aqi;
-//            }
-//
-//            public String getCo() {
-//                return co;
-//            }
-//
-//            public String getNo2() {
-//                return no2;
-//            }
-//
-//            public String getO3() {
-//                return o3;
-//            }
-//
-//            public String getPm10() {
-//                return pm10;
-//            }
-//
-//            public String getPm25() {
-//                return pm25;
-//            }
-//
-//            public String getQlty() {
-//                return qlty;
-//            }
-//
-//            public String getSo2() {
-//                return so2;
-//            }
 //        }
 //    }
 /*

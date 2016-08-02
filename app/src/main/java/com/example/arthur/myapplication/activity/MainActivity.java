@@ -25,9 +25,14 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.arthur.myapplication.R;
 import com.example.arthur.myapplication.httpUtils.NetworkRequest;
+import com.example.arthur.myapplication.modle.ButtonClickedEvent;
+import com.example.arthur.myapplication.modle.CharSetEvent;
 import com.example.arthur.myapplication.modle.CityAdapter;
 import com.example.arthur.myapplication.modle.PureWeatherDB;
 import com.example.arthur.myapplication.modle.Region;
+import com.example.arthur.myapplication.modle.TempWeatherAdapter;
+import com.example.arthur.myapplication.modle.WeatherInfo;
+import com.example.arthur.myapplication.utils.RxBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +49,7 @@ import lecho.lib.hellocharts.view.LineChartView;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -68,155 +74,102 @@ public class MainActivity extends AppCompatActivity {
     private List<String> dataList;
     private EditText searchInput;
     private RecyclerView mRecyclerView;
-    private MyRecycleViewAdapter mAdapter;
+    private TempWeatherAdapter mAdapter;
     private CityAdapter cityAdapter;
+    private CompositeSubscription allSubscription = new CompositeSubscription();
+    private WeatherInfo weatherInfo;
+    private List<Line> lineList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.new_search_city_activity_layout);
-        collapsingToolbar =(CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
-        toolbar = ((Toolbar) findViewById(R.id.weather_toolbar));
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setHomeButtonEnabled(true); //设置返回键可用
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        collapsingToolbar.setTitle("选择城市");
-        collapsingToolbar.setExpandedTitleColor(Color.parseColor("#003F51B5"));
-
-        dataList = new ArrayList<>();
-        searchResult = ((ListView) findViewById(R.id.search_result));
-        ArrayAdapter<String> adapter = new ArrayAdapter(this,R.layout.search_city_listview,dataList);
-        searchResult.setAdapter(adapter);
-        searchInput = ((EditText) findViewById(R.id.search_input));
-
+        setContentView(R.layout.activity_main);
         pureWeatherDB = PureWeatherDB.getInstance(this);
-        testButton = ((Button) findViewById(R.id.test_btn));
-        final String superId = "1904";
-
-//        testButton.setOnClickListener(v -> getRegion(searchInput.getText().toString())
-//                .subscribe(regions -> {
-//                        dataList.clear();
-//                        dataList.add(regions.get(0).getName());
-//                        adapter.notifyDataSetChanged();
-//                }));
-
         initRecycleView();
-
+       // initCharView();
+        allSubscription.add(RxBus.getInstance()
+                .toObserverable(ButtonClickedEvent.class)
+                .subscribe(this::onDataButtonClick));
     }
 
     private void initRecycleView() {
-        List<String> list = new ArrayList<>();
-        list.add("北京");
-        list.add("阳江");
-        cityAdapter = new CityAdapter(MainActivity.this,list);
-        mAdapter = new MyRecycleViewAdapter();
-        mRecyclerView = ((RecyclerView) findViewById(R.id.search_city_activity_recycle_view));
+        List<WeatherInfo> weatherInfos = new ArrayList<>();
+
+        weatherInfo = pureWeatherDB.mloadWeatherInfo("阳江");
+        weatherInfos.add(weatherInfo);
+        mAdapter = new TempWeatherAdapter(MainActivity.this,weatherInfos);
+        mRecyclerView = ((RecyclerView) findViewById(R.id.main_activity_recycle_view));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.setAdapter(cityAdapter);
+        mRecyclerView.setAdapter(mAdapter);
     }
+    public void initCharView(){
+        lineList = new ArrayList<>();
+        List<PointValue> pointValues = new ArrayList<>();
+        for (int i = 0; i < 7; ++i) {
+            pointValues.add(new PointValue(i, 0));
+        }//设置x轴的标签
+        Line line = new Line(pointValues);
+        line.setCubic(true);//设置线条圆滑过渡
 
+        lineList.add(line);
 
-
-
-
-    class MyRecycleViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
-        private final int TYPE_ONE = 0;
-        private final int TYPE_TWO = 1;
-
-        @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
-//            viewType = getItemViewType(viewType);
-            switch (viewType){
-                case TYPE_ONE:
-                    return new MyViewHolderOne(LayoutInflater.from(
-                            MainActivity.this).inflate(R.layout.item_city_list, parent,false));
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                    return new MyViewHolderTwo(LayoutInflater.from(
-                            MainActivity.this).inflate(R.layout.recycle_view_item_imag,parent,false));
-
-            }
-            return  null;
-
-        }
-
-        @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int viewType) {
-
-            switch (viewType){
-                case TYPE_ONE:
-                    ((MyViewHolderOne)holder).textView.setText("Hello Small!");
-                    break;
-                case TYPE_TWO:
-                    Glide.with(MainActivity.this)
-                            .load(R.drawable.qing)
-                            .fitCenter()
-                            .crossFade()
-                            .into(((MyViewHolderTwo) holder).imageView);
-//                    ((MyViewHolderTwo)holder).imageView.setImageResource(R.drawable.beijing);
-                    break;
-                case 2:
-                    Glide.with(MainActivity.this)
-                            .load(R.drawable.yu)
-                            .fitCenter()
-                            .crossFade()
-                            .into(((MyViewHolderTwo)holder).imageView);
-                    break;
-                case 3:
-                    Glide.with(MainActivity.this)
-                            .load(R.drawable.yun)
-                            .fitCenter()
-                            .crossFade()
-                            .into(((MyViewHolderTwo)holder).imageView);
-                    break;
-                case 4:
-                    Glide.with(MainActivity.this)
-                            .load(R.drawable.wu)
-                            .fitCenter()
-                            .crossFade()
-                            .into(((MyViewHolderTwo)holder).imageView);
-                    break;
-            }
-
-
-        }
-
-        @Override
-        public int getItemCount() {
-            return 5;
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-
-            return position;
-        }
-
-        class MyViewHolderOne extends RecyclerView.ViewHolder{
-            TextView textView;
-            public MyViewHolderOne(View itemView) {
-                super(itemView);
-                textView = (TextView) itemView.findViewById(R.id.search_city_recycle_view_city_title);
-
-            }
-        }
-        class MyViewHolderTwo extends RecyclerView.ViewHolder{
-            ImageView imageView;
-            public MyViewHolderTwo(View itemView) {
-                super(itemView);
-                imageView = ((ImageView) itemView.findViewById(R.id.recycle_view_image));
-            }
-        }
+        lineData = new LineChartData(lineList);
+        chartTop = ((LineChartView) findViewById(R.id.data_char_view));
+        chartTop.setLineChartData(lineData);
+        // For build-up animation you have to disable viewport recalculation.
+        chartTop.setViewportCalculationEnabled(false);
+        chartTop.setZoomType(null);
     }
+    private void onDataButtonClick(ButtonClickedEvent event){
+        int numValues = event.getDataSize();
+        List<AxisValue> axisValues_x = new ArrayList<>();
+        List<AxisValue> axisValues_y = new ArrayList<>();
 
+        for (int i = 0; i < numValues; ++i) {
+            axisValues_x.add(new AxisValue(i).setLabel(event.getxLabel()[i]));
+        }//设置x轴的标签
+        int rowNum;
+        int yMax;
+        int yMin;
+        if(event.getDataType().equals("MAX_TEMP") || event.getDataType().equals("MIN_TEMP")){
+            rowNum = event.getMax() - event.getMin();
+            yMax = event.getMax() + 1;
+            yMin = event.getMin() - 1;
+            for (int i = -1; i <= rowNum ; ++i) {
+                axisValues_y.add(
+                        new AxisValue(event.getMin() + i).setLabel(String.valueOf(event.getMin() + i)));
+            }//设置y轴的标签
+        }
+        else {
+            rowNum = 10;
+            yMax = 101;
+            yMin = 0;
+            for (int i = 0; i < rowNum; ++i) {
+                axisValues_y.add(
+                        new AxisValue(i * 10).setLabel(String.valueOf(i * 10)));
+            }//设置y轴的标签
+        }
 
+        lineData.setAxisXBottom(new Axis(axisValues_x).setHasLines(true));
+        lineData.setAxisYLeft(new Axis(axisValues_y).setHasLines(true).setMaxLabelChars(3));
 
+        // And set initial max viewport and current viewport- remember to set viewports after data.
 
+        Viewport v = new Viewport(0, yMax, 6,yMin);//(x最小值，y最大值，x最大值，y最小值)
+        chartTop.setMaximumViewport(v);
+        chartTop.setCurrentViewport(v);
 
-
-
+        chartTop.cancelDataAnimation();
+        // Modify data targets
+        lineList.get(0).setColor(event.getColor());
+        for (int i=0; i<numValues; i++) {
+            PointValue value = lineList.get(0).getValues().get(i);
+            // Change target only for Y value.
+            value.setTarget(value.getX(), event.getData().get(i));
+        }
+        // Start new data animation with 300ms duration;
+        chartTop.startDataAnimation(300);
+    }
 
 
 
@@ -305,9 +258,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_list) {
-            return true;
-        }
+
 
         return super.onOptionsItemSelected(item);
     }

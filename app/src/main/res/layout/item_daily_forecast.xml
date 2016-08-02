@@ -7,12 +7,12 @@
     android:layout_height="match_parent">
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="300dp"
         android:layout_gravity="center"
-        android:layout_marginBottom="7dp"
+        android:layout_marginBottom="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="10dp"
         android:clickable="true"
         android:foreground="?android:attr/selectableItemBackground"
         android:stateListAnimator="@anim/touch_raise"
@@ -28,12 +28,83 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:orientation="horizontal">
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.2"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="七天预测"
+                    android:textSize="12sp"
+                    android:textColor="@color/textColor"
+                    android:layout_gravity="center"/>
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.2"/>
+                <Button
+                    android:id="@+id/max_temp_btn"
+                    android:layout_width="56dp"
+                    android:layout_height="25dp"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:background="@drawable/button_1_style"
+                    android:text="最高气温"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="11sp" />
+
+                <Button
+                    android:id="@+id/min_temp_btn"
+                    android:layout_width="56dp"
+                    android:layout_height="25dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/button_2_style"
+                    android:text="最低气温"
+                    android:layout_marginLeft="5dp"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="11sp" />
+
+                <Button
+                    android:id="@+id/humidity_btn"
+                    android:layout_width="56dp"
+                    android:layout_height="25dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/button_3_style"
+                    android:text="相对湿度"
+                    android:layout_marginLeft="5dp"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="11sp" />
+
+                <Button
+                    android:id="@+id/rainy_pos_btn"
+                    android:layout_width="56dp"
+                    android:layout_height="25dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/button_4_style"
+                    android:text="降水概率"
+                    android:layout_marginLeft="5dp"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="11sp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_weight="1"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
                 android:orientation="vertical">
                 <lecho.lib.hellocharts.view.LineChartView
                     android:id="@+id/data_char_view"
@@ -43,11 +114,13 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
                     android:orientation="horizontal">
                     <View
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="0.3"/>
+                        android:layout_weight="0.6"/>
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_weight="1"
@@ -57,11 +130,14 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
+                            android:id="@+id/forecast_1_image"
                             android:src="@drawable/moon"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
+                            android:id="@+id/forecast_1_condition"
+                            android:layout_marginTop="1dp"
                             android:fontFamily="sans-serif-thin"
                             android:textColor="@color/textColor"
                             android:layout_gravity="center"
@@ -80,11 +156,14 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
+                            android:id="@+id/forecast_2_image"
                             android:src="@drawable/moon"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
+                            android:layout_marginTop="1dp"
+                            android:id="@+id/forecast_2_condition"
                             android:fontFamily="sans-serif-thin"
                             android:textColor="@color/textColor"
                             android:layout_gravity="center"
@@ -103,11 +182,14 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
+                            android:id="@+id/forecast_3_image"
                             android:src="@drawable/moon"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
+                            android:layout_marginTop="1dp"
+                            android:id="@+id/forecast_3_condition"
                             android:fontFamily="sans-serif-thin"
                             android:textColor="@color/textColor"
                             android:layout_gravity="center"
@@ -126,11 +208,14 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
+                            android:id="@+id/forecast_4_image"
                             android:src="@drawable/moon"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
+                            android:layout_marginTop="1dp"
+                            android:id="@+id/forecast_4_condition"
                             android:fontFamily="sans-serif-thin"
                             android:textColor="@color/textColor"
                             android:layout_gravity="center"
@@ -149,11 +234,14 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
+                            android:id="@+id/forecast_5_image"
                             android:src="@drawable/moon"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
+                            android:layout_marginTop="1dp"
+                            android:id="@+id/forecast_5_condition"
                             android:fontFamily="sans-serif-thin"
                             android:textColor="@color/textColor"
                             android:layout_gravity="center"
@@ -172,11 +260,14 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
+                            android:id="@+id/forecast_6_image"
                             android:src="@drawable/moon"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
+                            android:layout_marginTop="1dp"
+                            android:id="@+id/forecast_6_condition"
                             android:fontFamily="sans-serif-thin"
                             android:textColor="@color/textColor"
                             android:layout_gravity="center"
@@ -195,11 +286,14 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
+                            android:id="@+id/forecast_7_image"
                             android:src="@drawable/moon"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
+                            android:layout_marginTop="1dp"
+                            android:id="@+id/forecast_7_condition"
                             android:fontFamily="sans-serif-thin"
                             android:textColor="@color/textColor"
                             android:layout_gravity="center"
@@ -208,62 +302,8 @@
                     <View
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="0.3"/>
+                        android:layout_weight="0.05"/>
                 </LinearLayout>
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="10dp"
-                android:orientation="vertical">
-
-
-                <Button
-                    android:id="@+id/max_temp_btn"
-                    android:layout_width="60dp"
-                    android:layout_height="25dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/button_1_style"
-                    android:text="最高气温"
-                    android:textColor="@color/colorWhite"
-                    android:textSize="12sp" />
-
-                <Button
-                    android:id="@+id/min_temp_btn"
-                    android:layout_width="60dp"
-                    android:layout_height="25dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/button_2_style"
-                    android:text="最低气温"
-                    android:textColor="@color/colorWhite"
-                    android:textSize="12sp" />
-
-                <Button
-                    android:id="@+id/humidity_btn"
-                    android:layout_width="60dp"
-                    android:layout_height="25dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/button_3_style"
-                    android:text="相对湿度"
-                    android:textColor="@color/colorWhite"
-                    android:textSize="12sp" />
-
-                <Button
-                    android:id="@+id/rainy_pos_btn"
-                    android:layout_width="60dp"
-                    android:layout_height="25dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/button_4_style"
-                    android:text="降水概率"
-                    android:textColor="@color/colorWhite"
-                    android:textSize="12sp" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
             </LinearLayout>
         </LinearLayout>
 

@@ -48,7 +48,7 @@
                     android:layout_height="16dp"
                     android:textColor="@color/colorWhite"
                     android:text="请输入城市名称"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:paddingLeft="@dimen/layout_margin_left"
                     android:gravity="left|center"/>
                 <LinearLayout
@@ -84,7 +84,7 @@
                     android:layout_height="16dp"
                     android:textColor="@color/colorWhite"
                     android:text="搜索结果"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:paddingLeft="@dimen/layout_margin_left"
                     android:gravity="left|center"/>
                 <LinearLayout
@@ -133,8 +133,6 @@
                 android:theme="@style/AppTheme.AppBarOverlay">
 
             </android.support.v7.widget.Toolbar>
-
-
 
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>

@@ -39,7 +39,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 public class SearchActivity extends AppCompatActivity implements View.OnClickListener {
@@ -77,6 +79,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
     private EditText inputName;
     private Button searchCity;
+    private Button clearData;
     private Toolbar toolbar;
 
     private WeatherInfo tempInfo;
@@ -85,6 +88,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     private CityAdapter cityAdapter;
 
     private CollapsingToolbarLayout collapsingToolbar;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +105,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         initRecyclerView();
     }
 
-    private void initData(){
+    private void initData() {
         selectedRegion = null;
         currentLevel = PROVINCE;
         pureWeatherDB = PureWeatherDB.getInstance(this);
@@ -110,10 +114,12 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         lastCity = pref.getString("last_city", "");
     }
 
-    private void initView(){
+    private void initView() {
         inputName = (EditText) findViewById(R.id.search_input);
         searchCity = (Button) findViewById(R.id.search_city_btn);
         searchCity.setOnClickListener(this);
+        clearData = ((Button) findViewById(R.id.clear_text_btn));
+        clearData.setOnClickListener(this);
 
         listView = (ListView) findViewById(R.id.search_result);
         adapter = new ArrayAdapter<>(this, R.layout.search_city_listview, resultList);
@@ -134,8 +140,9 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
     }
-    private void initToolbarLayout(){
-        collapsingToolbar =(CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
+
+    private void initToolbarLayout() {
+        collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
         toolbar = ((Toolbar) findViewById(R.id.weather_toolbar));
 
         setSupportActionBar(toolbar);
@@ -143,17 +150,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         collapsingToolbar.setTitle("选择城市");
         collapsingToolbar.setExpandedTitleColor(Color.parseColor("#003F51B5"));
-
-//        Glide.with(this)
-//                .load(R.drawable.beijing_2)
-//                .fitCenter()
-//                .crossFade()
-//                .into(new SimpleTarget<GlideDrawable>() {
-//                    @Override
-//                    public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
-//                        collapsingToolbar.setBackground(resource);
-//                    }
-//                });
     }
 
     private void initRecyclerView() {
@@ -165,43 +161,59 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 selectedRegion = regionList.get(position);
                 switch (selectedRegion.getCode().length()) {
                     case 2:
+                        getRegion(selectedRegion.getCode());
                         currentLevel = CITY;
                         selectedProvince = selectedRegion;
-                        getRegion(selectedRegion.getCode());
                         break;
                     case 4:
-                        currentLevel = COUNTY;
                         getRegion(selectedRegion.getCode());
+                        currentLevel = COUNTY;
                         break;
                     case 6:
                         getWeatherByNetwork(selectedRegion.getName())
                                 .doOnError(throwable ->
-                                        Toast.makeText(SearchActivity.this, "网络好像不给力，请重试...", Toast.LENGTH_SHORT).show())
-                                .subscribe(weatherInfo -> {
-                                    switch (weatherInfo.status) {
-                                        case "ok":
-                                            pureWeatherDB.saveWeather(weatherInfo);
-                                            lastCity = selectedRegion.getName();
-                                            goToWeatherActivity();
-                                            break;
-                                        case "unknown city":
-                                            Toast.makeText(SearchActivity.this, "暂时没有这个城市的信息...", Toast.LENGTH_SHORT).show();
-                                            closeProgressDialog();
-                                            break;
-                                        case "no more requests":
-                                            Toast.makeText(SearchActivity.this, "免费的访问次数用完了...", Toast.LENGTH_SHORT).show();
-                                            closeProgressDialog();
-                                            break;
-                                        case "anr":
-                                            Toast.makeText(SearchActivity.this, "服务器无响应，请重试...", Toast.LENGTH_SHORT).show();
-                                            closeProgressDialog();
-                                            break;
+                                        Toast.makeText(SearchActivity.this, "网络不给力，请稍后重试...", Toast.LENGTH_SHORT).show())
+                                .doOnTerminate(() -> closeProgressDialog())
+                                .subscribe(new Subscriber<WeatherInfo>() {
+                                    @Override
+                                    public void onCompleted() {
+
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        Toast.makeText(SearchActivity.this, "网络不给力，请稍后重试...", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    @Override
+                                    public void onNext(WeatherInfo weatherInfo) {
+                                        if (weatherInfo != null) {
+                                            switch ( weatherInfo.status) {
+                                                case "ok":
+                                                    pureWeatherDB.saveWeather(weatherInfo);
+                                                    lastCity = selectedRegion.getName();
+                                                    goToWeatherActivity();
+                                                    break;
+                                                case "unknown city":
+                                                    Toast.makeText(SearchActivity.this, "暂时没有这个城市的信息...", Toast.LENGTH_SHORT).show();
+                                                    break;
+                                                case "no more requests":
+                                                    Toast.makeText(SearchActivity.this, "免费的访问次数用完了...", Toast.LENGTH_SHORT).show();
+                                                    break;
+                                                case "anr":
+                                                    Toast.makeText(SearchActivity.this, "服务器无响应，请稍候重试...", Toast.LENGTH_SHORT).show();
+                                                    break;
+                                                default:
+                                                    Toast.makeText(SearchActivity.this, "网络不给力，请稍后重试...", Toast.LENGTH_SHORT).show();
+                                                    break;
+                                            }
+                                        }
                                     }
                                 });
                         break;
-                }
             }
-        });
+        }
+    });
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(cityAdapter);
     }
@@ -219,34 +231,54 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         Observable
                 .concat(getRegionByDB(superCode), getRegionByNetwork(superCode))
                 .first(regions -> regions.size() > 0)
-                .flatMap(regions -> Observable.from(regions))
-                .map(region -> region.getName())
-                .doOnCompleted(() -> cityAdapter.notifyDataSetChanged())
-                .doOnSubscribe(() -> dataList.clear())
-                .subscribe(regionName -> {
-                    dataList.add(regionName);
+                .flatMap(regions -> {
+                    if (regions != null) {
+                        dataList.clear();
+                        regionList.clear();
+                        regionList = regions;
+                        return Observable.from(regions);
+                    }
+                    return Observable.error(new Throwable("解析数据失败"));
+                })
+                .map(region -> {
+                    if (region != null)
+                        return region.getName();
+                    else
+                        return Observable.error(new Throwable("解析数据失败"));
+                })
+                .doOnError(throwable ->
+                                Toast.makeText(SearchActivity.this, throwable.getMessage().toString(), Toast.LENGTH_SHORT).show()
+                )
+                .subscribe(new Subscriber<Object>() {
+                    @Override
+                    public void onCompleted() {
+                        cityAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+//                        Toast.makeText(SearchActivity.this, e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onNext(Object o) {
+                        dataList.add((String)o);
+                    }
                 });
     }
+
+
 
     private Observable<List<Region>> getRegionByNetwork(final String superCode) {
         return NetworkRequest
                 .getRegionWithCode(superCode)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(regions -> {
-                    pureWeatherDB.saveRegions(regions);
-                    regionList.clear();
-                    regionList = regions;
-                });
+                .doOnNext(regions -> pureWeatherDB.saveRegions(regions));
     }
 
     private Observable<List<Region>> getRegionByDB(final String superCode) {
-        return Observable
-                .just(pureWeatherDB.loadRegions(superCode))
-                .doOnNext(regions -> {
-                    regionList.clear();
-                    regionList = regions;
-                });
+        return Observable.just(pureWeatherDB.loadRegions(superCode));
     }
 
     private Observable<WeatherInfo> getWeatherByNetwork(String cityName) {
@@ -255,7 +287,13 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 .doOnSubscribe(this::showProgressDialog)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(weatherResponse -> Observable.from(weatherResponse.getWeatherInfos()));
+                .flatMap(weatherResponse -> {
+                    if (weatherResponse != null){
+                        return Observable.from(weatherResponse.getWeatherInfos());
+                    }
+                    else
+                        return Observable.error(new Exception("网络连接失败"));
+                });
     }
 
     /*
@@ -286,15 +324,14 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
      */
     @Override
     public void onBackPressed() {
-        if (selectedRegion == null){
-            if (TextUtils.isEmpty(lastCity)){
+        if (selectedRegion == null) {
+            if (TextUtils.isEmpty(lastCity)) {
                 finish();
                 System.exit(0);
             }
             goToWeatherActivity();
-        }
-        else {
-            switch (currentLevel){
+        } else {
+            switch (currentLevel) {
                 case COUNTY:
                     getRegion(selectedProvince.getCode());
                     currentLevel = CITY;
@@ -322,18 +359,36 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                                 adapter.notifyDataSetChanged();
                                 closeProgressDialog();
                             })
-                            .subscribe(weatherInfo -> {
-                                String item;
-                                if (weatherInfo.status.equals("ok")) {
-                                    item = weatherInfo.basic.city;
-                                    tempInfo = weatherInfo;
-                                } else {
-                                    item = SEARCH_FAIL;
+                            .subscribe(new Subscriber<WeatherInfo>() {
+                                @Override
+                                public void onCompleted() {
+
                                 }
-                                resultList.clear();
-                                resultList.add(item);
+
+                                @Override
+                                public void onError(Throwable e) {
+                                    Toast.makeText(SearchActivity.this, "网络不给力，请稍候重试...", Toast.LENGTH_SHORT).show();
+                                }
+
+                                @Override
+                                public void onNext(WeatherInfo weatherInfo) {
+                                    String item;
+                                    if (weatherInfo.status.equals("ok")) {
+                                        item = weatherInfo.basic.city;
+                                        tempInfo = weatherInfo;
+                                    } else {
+                                        item = SEARCH_FAIL;
+                                    }
+                                    resultList.clear();
+                                    resultList.add(item);
+                                }
                             });
                 }
+                break;
+            case (R.id.clear_text_btn):
+                inputName.setText("");
+                resultList.clear();
+                adapter.notifyDataSetChanged();
                 break;
         }
     }
