@@ -1,4 +1,4 @@
-package com.example.arthur.myapplication;
+package com.example.arthur.pureweather;
 
 import org.junit.Test;
 

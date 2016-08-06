@@ -77,10 +77,10 @@
 
                     <ImageView
                         android:id="@+id/now_image"
-                        android:layout_width="45dp"
-                        android:layout_height="45dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/moon" />
+                        android:src="@drawable/i_qing_n" />
 
 
                     <TextView
@@ -142,7 +142,7 @@
                             android:fontFamily="sans-serif-light"
                             android:gravity="bottom"
                             android:text="28°C/30°C"
-                            android:textColor="@color/orangePrimary"
+                            android:textColor="@color/orangeDark"
                             android:textSize="12dp" />
                     </LinearLayout>
 
@@ -173,7 +173,7 @@
                             android:fontFamily="sans-serif-light"
                             android:gravity="bottom"
                             android:text="65%"
-                            android:textColor="@color/greenPrimary"
+                            android:textColor="@color/greenDark"
                             android:textSize="12dp" />
                     </LinearLayout>
 
@@ -205,7 +205,7 @@
                             android:fontFamily="sans-serif-light"
                             android:gravity="bottom"
                             android:text="65%"
-                            android:textColor="@color/indigoPrimary"
+                            android:textColor="@color/indigoDark"
                             android:textSize="12dp" />
 
                     </LinearLayout>
