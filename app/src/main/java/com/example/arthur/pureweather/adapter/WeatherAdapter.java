@@ -3,16 +3,20 @@ package com.example.arthur.pureweather.adapter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
 import com.example.arthur.pureweather.R;
+import com.example.arthur.pureweather.constant.Constants;
 import com.example.arthur.pureweather.modle.Weather;
 import com.example.arthur.pureweather.utils.ImageCodeConverter;
 import com.example.arthur.pureweather.utils.MyImageLoader;
@@ -45,7 +49,8 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private RxBus mRxBus;
     private final int NOW_CONDITION = 0;
     private final int DAILY_FORECAST = 1;
-    private final int SUGGESTION = 2;
+    private final int HOURLY_FORECAST = 2;
+    private final int SUGGESTION = 3;
 
     public WeatherAdapter(Context context, List<Weather> weathers) {
         this.context = context;
@@ -60,6 +65,8 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 return NOW_CONDITION;
             case DAILY_FORECAST:
                 return DAILY_FORECAST;
+            case HOURLY_FORECAST:
+                return HOURLY_FORECAST;
             case SUGGESTION:
                 return SUGGESTION;
         }
@@ -76,6 +83,9 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             case DAILY_FORECAST:
                 view = LayoutInflater.from(context).inflate(R.layout.item_daily_forecast, parent, false);
                 return new DailyForecastViewHolder(view);
+            case HOURLY_FORECAST:
+                view = LayoutInflater.from(context).inflate(R.layout.item_hourly_forecast, parent, false);
+                return new HourlyForecastViewHolder(view);
             case SUGGESTION:
                 view = LayoutInflater.from(context).inflate(R.layout.item_suggestion, parent, false);
                 return new SuggestionViewHolder(view);
@@ -87,23 +97,35 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int viewType) {
         switch (viewType) {
             case NOW_CONDITION:
-                ((NowConditionViewHolder) holder).bind(context, weathers.get(0));
+                ((NowConditionViewHolder) holder).bind(weathers.get(0));
                 break;
             case DAILY_FORECAST:
-                ((DailyForecastViewHolder) holder).bind(context, weathers.get(0));
+                ((DailyForecastViewHolder) holder).bind(weathers.get(0));
+                break;
+            case HOURLY_FORECAST:
+                ((HourlyForecastViewHolder) holder).bind(weathers.get(0));
                 break;
             case SUGGESTION:
-                ((SuggestionViewHolder) holder).bind(context, weathers.get(0));
+                ((SuggestionViewHolder) holder).bind(weathers.get(0));
                 break;
         }
     }
 
     @Override
     public int getItemCount() {
-        return weathers.get(0).status.equals("ok") ? 3 : 0;
+        if (weathers.get(0).basic.cnty.equals("中国")){
+            if (weathers.get(0).hourlyForecast.size() > 0){
+                return 4;
+            }
+            else return 3;
+        }
+        else {
+            if (weathers.get(0).hourlyForecast.size() >0){
+                return 3;
+            }
+            else return 2;
+        }
     }
-
-    Class<com.example.arthur.pureweather.R.drawable> myDrawableClass = R.drawable.class;
 
     class NowConditionViewHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.now_temp)
@@ -126,7 +148,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(Context context, Weather weather) {
+        public void bind(Weather weather) {
             nowTemp.setText(weather.now.tmp + "°");
             nowCondition.setText(weather.now.cond.txt);
             humidity.setText(weather.dailyForecast.get(0).hum + "%");
@@ -183,35 +205,35 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
 
         @TargetApi(Build.VERSION_CODES.M)
-        public void bind(Context context, Weather weather) {
+        public void bind(Weather weather) {
             initData();
             initCharView();
             //负责将数据按钮类型和天气数据装载到点击事件中，然后发射事件
             RxView.clicks(maxTempBtn)
                     .throttleFirst(3000, TimeUnit.MICROSECONDS)
                     .subscribe(aVoid -> {
-                        onButtonClick(context.getColor(R.color.redPrimary),"MAX_TEMP");
+                        onButtonClick(ContextCompat.getColor(context,R.color.redPrimary),"MAX_TEMP");
                     });
             RxView.clicks(minTempBtn)
                     .throttleFirst(3000, TimeUnit.MICROSECONDS)
                     .subscribe(aVoid -> {
-                        onButtonClick(context.getColor(R.color.orangePrimary),"MIN_TEMP");
+                        onButtonClick(ContextCompat.getColor(context,R.color.orangePrimary),"MIN_TEMP");
                     });
             RxView.clicks(humidityBtn)
                     .throttleFirst(3000, TimeUnit.MICROSECONDS)
                     .subscribe(aVoid -> {
-                        onButtonClick(context.getColor(R.color.greenPrimary), "HUMIDITY");
+                        onButtonClick(ContextCompat.getColor(context, R.color.greenPrimary), "HUMIDITY");
                     });
             RxView.clicks(rainyPosBtn)
                     .throttleFirst(3000, TimeUnit.MICROSECONDS)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(aVoid -> {
-                        onButtonClick(context.getColor(R.color.indigoPrimary), "RAINY_PRO");
+                        onButtonClick(ContextCompat.getColor(context, R.color.indigoPrimary), "RAINY_PRO");
                     });
             for (int i=0; i<7; i++){
-                forecastTextView[i].setText(weather.dailyForecast.get(i).cond.txtD.replace("晴间",""));//晴间多云  改为 多云，去掉多余信息保证页面整洁
+                forecastTextView[i].setText(weather.dailyForecast.get(i).cond.txtD.replace("晴间", ""));//晴间多云  改为 多云，去掉多余信息保证页面整洁
                 MyImageLoader.load(context,
-                        ImageCodeConverter.getWeatherIconResource(weather.dailyForecast.get(i).cond.codeD,"daily_forecast"),forecastImageView[i]);
+                        ImageCodeConverter.getWeatherIconResource(weather.dailyForecast.get(i).cond.codeD, "daily_forecast"), forecastImageView[i]);
             }
         }
 
@@ -261,7 +283,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             int yAxisMin = Collections.min(maxTemp)-1;
             for (int i = -1; i <= rowNum+1 ; i++) {
                 axisValues_y
-                        .add(new AxisValue(Collections.min(maxTemp) + i).setLabel(String.valueOf(Collections.min(maxTemp) + i)+"°C"));
+                        .add(new AxisValue(Collections.min(maxTemp) + i).setLabel(String.valueOf(Collections.min(maxTemp) + i)+"°"));
             }
             for (int i = 0; i < 7; ++i) {
                 pointValues.add(new PointValue(i, maxTemp.get(i)));
@@ -269,15 +291,22 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }//生成7个点以及x轴的标签
 
             Line line = new Line(pointValues);
-            line.setColor(context.getColor(R.color.redPrimary));
+            line.setColor(ContextCompat.getColor(context, R.color.redPrimary));
             line.setCubic(true);//设置线条圆滑过渡
+            boolean hasLabel = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.HAS_LABEL,false);
+            if (hasLabel){
+                line.setHasLabels(true);
+            }else{
+                line.setHasLabels(false);
+            }
+
             lineList.add(line);
 
             LineChartData lineChartData = new LineChartData(lineList);
             lineChartData.setAxisXBottom(new Axis(axisValues_x).setHasLines(true));
             lineChartData.setAxisYLeft(new Axis(axisValues_y).setHasLines(true).setMaxLabelChars(3));
-            lineChartData.getAxisYLeft().setMaxLabelChars(4).setTextColor(context.getColor(R.color.textColorLight));
-            lineChartData.getAxisXBottom().setMaxLabelChars(2).setTextColor(context.getColor(R.color.textColorLight));
+            lineChartData.getAxisYLeft().setMaxLabelChars(4).setTextColor(ContextCompat.getColor(context,R.color.textColorLight));
+            lineChartData.getAxisXBottom().setMaxLabelChars(2).setTextColor(ContextCompat.getColor(context,R.color.textColorLight));
 
             lineChartView.setLineChartData(lineChartData);
             lineChartView.setViewportCalculationEnabled(false);//设置false的情况下，坐标轴直接突变到目标值，而不是慢慢演变
@@ -307,7 +336,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     yAxisMax = Collections.max(maxTemp)+1;
                     yAxisMin = Collections.min(maxTemp)-1;
                     for (int i = -1; i <= rowNum+1 ; i++) {
-                        yAxis.add(new AxisValue(Collections.min(maxTemp) + i).setLabel(String.valueOf(Collections.min(maxTemp) + i)+"°C"));
+                        yAxis.add(new AxisValue(Collections.min(maxTemp) + i).setLabel(String.valueOf(Collections.min(maxTemp) + i)+"°"));
                     }
                     break;
                 case "MIN_TEMP":
@@ -319,7 +348,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     yAxisMax = Collections.max(minTemp)+1;
                     yAxisMin = Collections.min(minTemp)-1;
                     for (int i = -1; i <= rowNum +1; i++) {
-                        yAxis.add(new AxisValue(Collections.min(minTemp) + i).setLabel(String.valueOf(Collections.min(minTemp) + i)+"°C"));
+                        yAxis.add(new AxisValue(Collections.min(minTemp) + i).setLabel(String.valueOf(Collections.min(minTemp) + i)+"°"));
                     }
                     break;
                 case "HUMIDITY":
@@ -329,9 +358,10 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     }
                     yAxisMax = 100;
                     yAxisMin = 0;
-                    for (int i = 0; i <= 10 ; i++) {
-                        yAxis.add(new AxisValue(i*10).setLabel(String.valueOf(i*10)+"%"));
+                    for (int i = 0; i < 10 ; i++) {
+                        yAxis.add(new AxisValue(i * 10).setLabel(String.valueOf(i * 10)+"%"));
                     }
+                    yAxis.add(new AxisValue(100).setLabel(String.valueOf(99)+"%"));
                     break;
                 case "RAINY_PRO":
                     for (int i=0; i<7; i++) {
@@ -340,9 +370,10 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     }
                     yAxisMax = 100;
                     yAxisMin = 0;
-                    for (int i = 0; i <= 10 ; i++) {
+                    for (int i = 0; i < 10 ; i++) {
                         yAxis.add(new AxisValue(i * 10).setLabel(String.valueOf(i * 10)+"%"));
                     }
+                    yAxis.add(new AxisValue(100).setLabel(String.valueOf(99)+"%"));
                     break;
                 default:
                     yAxisMax = 0;
@@ -354,6 +385,35 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             Viewport viewport = new Viewport(0, yAxisMax, 6.2f, yAxisMin);//(x最小值，y最大值，x最大值，y最小值)，其实是表格的四边起始点
             lineChartView.setMaximumViewport(viewport);
             lineChartView.setCurrentViewport(viewport);
+        }
+    }
+
+    class HourlyForecastViewHolder extends RecyclerView.ViewHolder{
+        private LinearLayout hourlyForecastLayout;
+        private TextView[] time = new TextView[weathers.get(0).hourlyForecast.size()];
+        private TextView[] temp = new TextView[weathers.get(0).hourlyForecast.size()];
+        private TextView[] humidity = new TextView[weathers.get(0).hourlyForecast.size()];
+        private TextView[] rainyPro = new TextView[weathers.get(0).hourlyForecast.size()];
+        public HourlyForecastViewHolder(View itemView) {
+            super(itemView);
+            hourlyForecastLayout = (LinearLayout) itemView.findViewById(R.id.hourly_forecast_layout);
+            int size = weathers.get(0).hourlyForecast.size();
+            for (int i=0; i<size; i++){
+                View item = View.inflate(context,R.layout.item_hour_forecast_detail,null);
+                time[i] = ((TextView) item.findViewById(R.id.hourly_forecast_time));
+                temp[i] = ((TextView) item.findViewById(R.id.hourly_forecast_temp));
+                humidity[i] = ((TextView) item.findViewById(R.id.hourly_forecast_humidity));
+                rainyPro[i] = ((TextView) item.findViewById(R.id.hourly_forecast_rainy_pro));
+                hourlyForecastLayout.addView(item);
+            }
+        }
+        public void bind(Weather weather){
+            for (int i = 0; i<weather.hourlyForecast.size();i++){
+                time[i].setText(weather.hourlyForecast.get(i).date);
+                temp[i].setText(weather.hourlyForecast.get(i).tmp + "°C");
+                humidity[i].setText(weather.hourlyForecast.get(i).hum + "%");
+                rainyPro[i].setText(weather.hourlyForecast.get(i).pop + "%");
+            }
         }
     }
 
@@ -376,10 +436,9 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(Context context, Weather weather) {
+        public void bind(Weather weather) {
             sportSuggestionBrf.setText(weather.suggestion.sport.brf);
             sportSuggestion.setText(weather.suggestion.sport.txt);
-
             travelSuggestionBrf.setText(weather.suggestion.trav.brf);
             travelSuggestion.setText(weather.suggestion.trav.txt);
             carWashSuggestionBrf.setText(weather.suggestion.cw.brf);

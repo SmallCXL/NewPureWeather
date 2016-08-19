@@ -36,9 +36,9 @@
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="top"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
                     android:background="@drawable/sport" />
 
                 <LinearLayout
@@ -51,7 +51,6 @@
                         android:id="@+id/sport_suggestion_brf"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-
                         android:fontFamily="sans-serif-light"
                         android:text="较适宜"
                         android:layout_gravity="left"
@@ -63,7 +62,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="2dp"
                         android:fontFamily="sans-serif-light"
                         android:gravity="left"
                         android:text="有降水，推荐您在室内进行健身休闲运动；若坚持户外运动，须注意携带雨具并注意避雨防滑。"
@@ -74,17 +73,22 @@
 
             </LinearLayout>
 
-
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginTop="@dimen/small_interval"
+                android:layout_marginBottom="@dimen/small_interval"
+                android:layout_marginLeft="48dp"
+                android:background="@color/textColorLight"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_horizontal_margin"
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="top"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
                     android:background="@drawable/travel" />
 
                 <LinearLayout
@@ -109,7 +113,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
 
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="2dp"
                         android:fontFamily="sans-serif-light"
                         android:gravity="left"
                         android:text="有降水，温度适宜，在细雨中游玩别有一番情调，可不要错过机会呦！但记得出门要携带雨具。"
@@ -119,17 +123,23 @@
 
             </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginTop="@dimen/small_interval"
+                android:layout_marginBottom="@dimen/small_interval"
+                android:layout_marginLeft="48dp"
+                android:background="@color/textColorLight"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_horizontal_margin"
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="top"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
                     android:background="@drawable/car_wash" />
 
                 <LinearLayout
@@ -137,8 +147,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
                     android:orientation="vertical">
-
-
 
                         <TextView
                             android:id="@+id/car_wash_suggestion_brf"
@@ -149,13 +157,12 @@
                             android:textColor="@color/textColor"
                             android:textSize="14sp" />
 
-
                     <TextView
                         android:id="@+id/car_wash_suggestion"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginTop="5dp"
+                        android:layout_marginTop="2dp"
                         android:fontFamily="sans-serif-light"
                         android:gravity="left"
                         android:text="不宜洗车，未来24小时内有雨，如果在此期间洗车，雨水和路上的泥水可能会再次弄脏您的爱车。"

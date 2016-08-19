@@ -10,10 +10,11 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
-import com.example.arthur.pureweather.constant.MyString;
+import com.example.arthur.pureweather.constant.Constants;
 import com.example.arthur.pureweather.httpUtils.NetworkRequest;
 import com.example.arthur.pureweather.modle.VersionInfo;
 
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -54,21 +55,32 @@ public class CheckVersion {
                 .getNewVersion()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(throwable ->
-                        Toast.makeText(context, "获取新版本信息失败，请重试！", Toast.LENGTH_SHORT).show())
-                .subscribe(versionInfo -> {
-                    latestVersion = versionInfo.version;
-                    if (latestVersion.compareTo(localVersion) > 0) {
-                        showUpdateDialog(context, versionInfo, MyString.MANUAL_CHECK);
-                    } else {
-                        Toast.makeText(context, "已经是最新版本~", Toast.LENGTH_SHORT).show();
+                .subscribe(new Subscriber<VersionInfo>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Toast.makeText(context, "获取新版本信息失败，请检查网络", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onNext(VersionInfo versionInfo) {
+                        latestVersion = versionInfo.version;
+                        if (latestVersion.compareTo(localVersion) > 0) {
+                            showUpdateDialog(context, versionInfo, Constants.MANUAL_CHECK);
+                        } else {
+                            Toast.makeText(context, "已经是最新版本~", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
     }
 
     public static void autoCheck(Context context) {
         pref = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean isIgnore = pref.getBoolean(MyString.IGNORE_UPDATE, false);
+        boolean isIgnore = pref.getBoolean(Constants.IGNORE_UPDATE, false);
 
         if (!isIgnore) {
             localVersion = String.valueOf(getVersionCode(context));
@@ -76,39 +88,50 @@ public class CheckVersion {
                     .getNewVersion()
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .doOnError(throwable ->
-                            Toast.makeText(context, "获取新版本信息失败，请重试！", Toast.LENGTH_SHORT).show())
-                    .subscribe(versionInfo -> {
-                        latestVersion = versionInfo.version;
-                        if (latestVersion.compareTo(localVersion) > 0) {
-                            showUpdateDialog(context, versionInfo, MyString.AUTO_CHECK);
+                    .subscribe(new Subscriber<VersionInfo>() {
+                        @Override
+                        public void onCompleted() {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            Toast.makeText(context, "获取新版本信息失败，请检查网络", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onNext(VersionInfo versionInfo) {
+                            latestVersion = versionInfo.version;
+                            if (latestVersion.compareTo(localVersion) > 0) {
+                                showUpdateDialog(context, versionInfo, Constants.AUTO_CHECK);
+                            }
                         }
                     });
         }
     }
 
     public static void showUpdateDialog(final Context context, VersionInfo versionInfo, final String checkType) {
-
         String negativeText;
-        boolean cancelable;
+//        boolean cancelable;
         switch (checkType) {
-            case MyString.AUTO_CHECK:
+            case Constants.AUTO_CHECK:
                 negativeText = "稍候再说";
-                cancelable = false;
+//                cancelable = false;
                 break;
-            case MyString.MANUAL_CHECK:
+            case Constants.MANUAL_CHECK:
             default:
                 negativeText = "取消";
-                cancelable = true;
+//                cancelable = true;
         }
-        String title = "有新的版本哦~";
+        String title = "有新版本的识雨晴天气哦~";
         String body = versionInfo.changelog;
         editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 
         new AlertDialog.Builder(context).setTitle(title)
                 .setMessage(body)
                 .setPositiveButton("下载", (dialog, which) -> {
-                    editor.putBoolean(MyString.IGNORE_UPDATE, false);
+                    //下载新版，并取消忽略更新
+                    editor.putBoolean(Constants.IGNORE_UPDATE, false);
                     editor.commit();
                     Uri uri = Uri.parse(versionInfo.updateUrl);   //指定网址
                     Intent intent = new Intent();
@@ -117,13 +140,12 @@ public class CheckVersion {
                     context.startActivity(intent);        //启动Activity
                 })
                 .setNegativeButton(negativeText, (dialog, which) -> {
-                    if (checkType.equals(MyString.AUTO_CHECK)) {
+                    if (checkType.equals(Constants.AUTO_CHECK)) {
                         //忽略自动更新
-                        editor.putBoolean(MyString.IGNORE_UPDATE, true);
+                        editor.putBoolean(Constants.IGNORE_UPDATE, true);
                         editor.commit();
                     }
                 })
-                .setCancelable(cancelable)
                 .show();
     }
 

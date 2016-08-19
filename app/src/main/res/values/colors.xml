@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303f9f</color>
-    <color name="colorAccent">#03A9F4</color>
+    <color name="colorPrimary_2">#3F51B5</color>
+    <color name="colorPrimaryDark_2">#3F51B5</color>
+    <color name="colorAccent_2">#03A9F4</color>
     <color name="colorWhite">#ffffff</color>
 
-    <color name="colorPrimary_2">#009688</color>
-    <color name="colorPrimaryDark_2">#00796B</color>
-    <color name="colorAccent_2">#FFC107</color>
+    <color name="colorPrimary">#009688</color>
+    <color name="colorPrimaryDark">#00796B</color>
+    <color name="colorAccent">#FFC107</color>
     <color name="colorWhite_2">#ffffff</color>
     <color name="textColor">#424242</color>
     <color name="textColorWhite">#ffffff</color>
@@ -21,5 +21,8 @@
     <color name="greenPrimary">#8BC34A</color>
     <color name="indigoDark">#303F9F</color>
     <color name="indigoPrimary">#3F51B5</color>
+    
+    <color name="transparent">#00000000</color>
+    <color name="card_view_background">#eeeeee</color>
 
 </resources>

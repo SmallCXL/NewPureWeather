@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:theme="@style/AppTheme">
+    android:fitsSystemWindows="true">
 
 
 
@@ -14,8 +14,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/colorPrimary"
         android:title="收藏列表"
-        android:titleTextColor="@color/colorWhite"
-        android:theme="@style/AppTheme"/>
+        android:titleTextColor="@color/colorWhite"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/city_manager_recycler_view"

@@ -1,32 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_my_list"
-            android:icon="@drawable/ic_dashboard_grey600_24dp"
-            android:title="收藏列表" />
-        <item
-            android:id="@+id/nav_add_city"
-            android:icon="@drawable/ic_place_grey600_24dp"
-            android:title="添加城市" />
-        <item
-            android:id="@+id/nav_settings"
-            android:icon="@drawable/ic_settings_grey600_24dp"
-            android:title="系统设置" />
-
-    </group>
+    <item android:title="Menu">
+        <group android:checkableBehavior="single">
+            <item
+                android:id="@+id/nav_my_list"
+                android:icon="@drawable/ic_dashboard_grey600_24dp"
+                android:title="收藏列表" />
+            <item
+                android:id="@+id/nav_add_city"
+                android:icon="@drawable/ic_place_grey600_24dp"
+                android:title="添加城市" />
+        </group>
+    </item>
 
     <item android:title="Information">
         <menu>
             <item
-                android:id="@+id/nav_about_me"
-                android:icon="@drawable/ic_person_grey600_24dp"
-                android:title="关于作者" />
+                android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_settings_grey600_24dp"
+                android:title="系统设置" />
             <item
-                android:id="@+id/nav_licences"
-                android:icon="@drawable/ic_info_grey600_24dp"
-                android:title="版权说明" />
+                android:id="@+id/nav_about_app"
+                android:icon="@drawable/ic_person_grey600_24dp"
+                android:title="关于软件" />
         </menu>
     </item>
 

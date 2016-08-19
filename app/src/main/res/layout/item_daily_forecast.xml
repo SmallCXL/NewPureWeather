@@ -37,12 +37,12 @@
                 <View
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.2"/>
+                    android:layout_weight="0.1"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="七天预测"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textColor="@color/textColor"
                     android:layout_gravity="center"/>
                 <View
@@ -51,8 +51,9 @@
                     android:layout_weight="0.2"/>
                 <Button
                     android:id="@+id/max_temp_btn"
-                    android:layout_width="56dp"
+                    android:layout_width="0dp"
                     android:layout_height="25dp"
+                    android:layout_weight="1"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
                     android:background="@drawable/button_1_style"
@@ -62,11 +63,12 @@
                 <View
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.2"/>
+                    android:layout_weight="0.1"/>
                 <Button
                     android:id="@+id/min_temp_btn"
-                    android:layout_width="56dp"
+                    android:layout_width="0dp"
                     android:layout_height="25dp"
+                    android:layout_weight="1"
                     android:layout_marginTop="8dp"
                     android:background="@drawable/button_2_style"
                     android:text="最低气温"
@@ -75,11 +77,12 @@
                 <View
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.2"/>
+                    android:layout_weight="0.1"/>
                 <Button
                     android:id="@+id/humidity_btn"
-                    android:layout_width="56dp"
+                    android:layout_width="0dp"
                     android:layout_height="25dp"
+                    android:layout_weight="1"
                     android:layout_marginTop="8dp"
                     android:background="@drawable/button_3_style"
                     android:text="相对湿度"
@@ -88,11 +91,12 @@
                 <View
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.2"/>
+                    android:layout_weight="0.1"/>
                 <Button
                     android:id="@+id/rainy_pos_btn"
-                    android:layout_width="56dp"
+                    android:layout_width="0dp"
                     android:layout_height="25dp"
+                    android:layout_weight="1"
                     android:layout_marginTop="8dp"
                     android:background="@drawable/button_4_style"
                     android:text="降水概率"
@@ -102,7 +106,7 @@
                 <View
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1" />
+                    android:layout_weight="0.1" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -134,12 +138,11 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
-                            android:id="@+id/forecast_1_image"
-                            android:src="@drawable/moon"/>
+                            android:id="@+id/forecast_1_image"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="11sp"
+                            android:textSize="12sp"
                             android:id="@+id/forecast_1_condition"
                             android:layout_marginTop="1dp"
                             android:fontFamily="sans-serif-thin"
@@ -160,12 +163,11 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
-                            android:id="@+id/forecast_2_image"
-                            android:src="@drawable/moon"/>
+                            android:id="@+id/forecast_2_image"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="11sp"
+                            android:textSize="12sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_2_condition"
                             android:fontFamily="sans-serif-thin"
@@ -186,12 +188,11 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
-                            android:id="@+id/forecast_3_image"
-                            android:src="@drawable/moon"/>
+                            android:id="@+id/forecast_3_image"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="11sp"
+                            android:textSize="12sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_3_condition"
                             android:fontFamily="sans-serif-thin"
@@ -212,12 +213,11 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
-                            android:id="@+id/forecast_4_image"
-                            android:src="@drawable/moon"/>
+                            android:id="@+id/forecast_4_image"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="11sp"
+                            android:textSize="12sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_4_condition"
                             android:fontFamily="sans-serif-thin"
@@ -238,12 +238,11 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
-                            android:id="@+id/forecast_5_image"
-                            android:src="@drawable/moon"/>
+                            android:id="@+id/forecast_5_image"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="11sp"
+                            android:textSize="12sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_5_condition"
                             android:fontFamily="sans-serif-thin"
@@ -264,12 +263,11 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
-                            android:id="@+id/forecast_6_image"
-                            android:src="@drawable/moon"/>
+                            android:id="@+id/forecast_6_image"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="11sp"
+                            android:textSize="12sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_6_condition"
                             android:fontFamily="sans-serif-thin"
@@ -290,12 +288,11 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
-                            android:id="@+id/forecast_7_image"
-                            android:src="@drawable/moon"/>
+                            android:id="@+id/forecast_7_image"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="11sp"
+                            android:textSize="12sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_7_condition"
                             android:fontFamily="sans-serif-thin"

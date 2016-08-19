@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/update_dialog_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/medium_interval"
+    android:paddingLeft="@dimen/large_interval"
+    android:paddingRight="@dimen/large_interval"
+    android:paddingTop="@dimen/large_interval">
+
+    <TextView
+        android:id="@+id/update_dialog_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:textColor="@color/textColor"
+        android:textSize="20sp" />
+
+    <SeekBar
+        android:id="@+id/update_dialog_seek_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/large_interval"
+        android:maxHeight="2dp"
+        android:minHeight="2dp"
+        android:max="24"
+        android:progressDrawable="@drawable/seekbar_style"/>
+
+    <Button
+        android:id="@+id/update_dialog_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_gravity="right"
+        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        android:background="#00000000"
+        android:text="确定"
+        android:textColor="@color/colorAccent"
+        android:textSize="14sp" />
+
+</LinearLayout>

@@ -27,6 +27,7 @@ public class Weather implements Serializable {
             dailyForecastInfo.cond = new DailyForecastInfo.CondInfo();
             dailyForecast.add(dailyForecastInfo);
         }
+        this.hourlyForecast = new ArrayList<>();
     }
 
     /*

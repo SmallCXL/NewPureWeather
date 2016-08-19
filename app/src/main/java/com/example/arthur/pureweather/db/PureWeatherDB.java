@@ -17,9 +17,6 @@ import java.util.List;
  */
 public class PureWeatherDB {
 
-/*
-将参数名重新定义
- */
     private Context mContext;
 
     /*
@@ -41,6 +38,7 @@ public class PureWeatherDB {
     final private static String STATUS = "status";
     final private static String CITY_NAME = "city_name";
     final private static String CITY_ID = "city_id";
+    final private static String COUNTRY = "country";
     final private static String UPDATE_TIME = "update_time";
     final private static String NOW_CONDITION = "now_condition";
     final private static String NOW_TEMPERATURE = "now_temperature";
@@ -55,6 +53,27 @@ public class PureWeatherDB {
     final private static String TRAVEL_SUGGESTION_BRIEF = "travel_suggestion_brief";
     final private static String CAR_WASH_SUGGESTION = "car_wash_suggestion";
     final private static String CAR_WASH_SUGGESTION_BRIEF = "car_wash_suggestion_brief";
+
+    final private static String HOURLY_FORECAST_SIZE = "hourly_forecast_size";
+    final private static String[] HOURLY_FORECAST_TIME = {
+            "hourly_forecast_1_time","hourly_forecast_2_time","hourly_forecast_3_time",
+            "hourly_forecast_4_time","hourly_forecast_5_time","hourly_forecast_6_time",
+            "hourly_forecast_7_time","hourly_forecast_8_time"};
+
+    final private static String[] HOURLY_FORECAST_TEMP = {
+            "hourly_forecast_1_temp","hourly_forecast_2_temp","hourly_forecast_3_temp",
+            "hourly_forecast_4_temp","hourly_forecast_5_temp","hourly_forecast_6_temp",
+            "hourly_forecast_7_temp","hourly_forecast_8_temp"};
+
+    final private static String[] HOURLY_FORECAST_HUMIDITY = {
+            "hourly_forecast_1_humidity","hourly_forecast_2_humidity","hourly_forecast_3_humidity",
+            "hourly_forecast_4_humidity","hourly_forecast_5_humidity","hourly_forecast_6_humidity",
+            "hourly_forecast_7_humidity","hourly_forecast_8_humidity"};
+
+    final private static String[] HOURLY_FORECAST_RAINY_PRO = {
+            "hourly_forecast_1_rainy_pro","hourly_forecast_2_rainy_pro","hourly_forecast_3_rainy_pro",
+            "hourly_forecast_4_rainy_pro","hourly_forecast_5_rainy_pro","hourly_forecast_6_rainy_pro",
+            "hourly_forecast_7_rainy_pro","hourly_forecast_8_rainy_pro"};
 
     final private static String[] FORECAST_DATE = {
             "forecast_1_date","forecast_2_date","forecast_3_date","forecast_4_date",
@@ -109,6 +128,9 @@ public class PureWeatherDB {
         return tempDB;
     }
 
+    public void closeDB (){
+        db.close();
+    }
     public void saveRegions(List<Region> regions){
         if (regions.size() > 0){
             for (Region region : regions){
@@ -145,7 +167,7 @@ public class PureWeatherDB {
             //basic
             value.put(CITY_NAME, weather.basic.city);
             value.put(CITY_ID, weather.basic.id);
-
+            value.put(COUNTRY, weather.basic.cnty);
             value.put(UPDATE_TIME, weather.basic.update.loc);
 //            //aqi
 //            value.put("aqi_value", weather.getAqi().getCity().getAqi());
@@ -162,14 +184,32 @@ public class PureWeatherDB {
             value.put(RAINY_PROBABILITY, weather.dailyForecast.get(0).pop);
             value.put(MAX_TEMPERATURE, weather.dailyForecast.get(0).tmp.max);
             value.put(MIN_TEMPERATURE, weather.dailyForecast.get(0).tmp.min);
+
+            value.put(HOURLY_FORECAST_SIZE,weather.hourlyForecast.size());
+            if (weather.hourlyForecast.size() >0){
+                for (int i=0; i<weather.hourlyForecast.size();i++){
+                    value.put(HOURLY_FORECAST_TIME[i],weather.hourlyForecast.get(i).date.substring(11));
+                    value.put(HOURLY_FORECAST_TEMP[i],weather.hourlyForecast.get(i).tmp);
+                    value.put(HOURLY_FORECAST_HUMIDITY[i],weather.hourlyForecast.get(i).hum);
+                    value.put(HOURLY_FORECAST_RAINY_PRO[i],weather.hourlyForecast.get(i).pop);
+                }
+            }else {
+                for (int i=0; i<8;i++){
+                    value.put(HOURLY_FORECAST_TIME[i],"");
+                    value.put(HOURLY_FORECAST_TEMP[i],"");
+                    value.put(HOURLY_FORECAST_HUMIDITY[i],"");
+                    value.put(HOURLY_FORECAST_RAINY_PRO[i],"");
+                }
+            }
+
             for (int i=0; i<7; i++){
-                value.put(PureWeatherDB.FORECAST_DATE[i], weather.dailyForecast.get(i).date);
-                value.put(PureWeatherDB.FORECAST_CONDITION[i], weather.dailyForecast.get(i).cond.txtD);
-                value.put(PureWeatherDB.FORECAST_IMAGE_CODE[i], weather.dailyForecast.get(i).cond.codeD);
-                value.put(PureWeatherDB.FORECAST_HUMIDITY[i], weather.dailyForecast.get(i).hum);
-                value.put(PureWeatherDB.FORECAST_MAX_TEMP[i], weather.dailyForecast.get(i).tmp.max);
-                value.put(PureWeatherDB.FORECAST_MIN_TEMP[i], weather.dailyForecast.get(i).tmp.min);
-                value.put(PureWeatherDB.FORECAST_RAINY_PRO[i], weather.dailyForecast.get(i).pop);
+                value.put(FORECAST_DATE[i], weather.dailyForecast.get(i).date);
+                value.put(FORECAST_CONDITION[i], weather.dailyForecast.get(i).cond.txtD);
+                value.put(FORECAST_IMAGE_CODE[i], weather.dailyForecast.get(i).cond.codeD);
+                value.put(FORECAST_HUMIDITY[i], weather.dailyForecast.get(i).hum);
+                value.put(FORECAST_MAX_TEMP[i], weather.dailyForecast.get(i).tmp.max);
+                value.put(FORECAST_MIN_TEMP[i], weather.dailyForecast.get(i).tmp.min);
+                value.put(FORECAST_RAINY_PRO[i], weather.dailyForecast.get(i).pop);
             }
             //status
             value.put(STATUS, weather.status);
@@ -233,13 +273,7 @@ public class PureWeatherDB {
     /*
     加载完整的天气信息
      */
-    public Cursor loadWeatherInfo(String cityName){
-        Cursor cursor ;
-        cursor = db.query(TABLE_WEATHER, null, CITY_NAME + " = ?", new String[]{cityName}, null, null, null);
-        return cursor;
-    }
-
-    public Weather mloadWeatherInfo(String cityName){
+    public Weather loadWeatherInfo(String cityName){
         Cursor cursor ;
         Weather weather = new Weather();
 
@@ -252,6 +286,7 @@ public class PureWeatherDB {
             weather.now.tmp = cursor.getString(cursor.getColumnIndex(NOW_TEMPERATURE));
             weather.basic.city = cursor.getString(cursor.getColumnIndex(CITY_NAME));
             weather.basic.id = cursor.getString(cursor.getColumnIndex(CITY_ID));
+            weather.basic.cnty = cursor.getString(cursor.getColumnIndex(COUNTRY));
             weather.basic.update.loc = cursor.getString(cursor.getColumnIndex(UPDATE_TIME));
             weather.suggestion.sport.txt = cursor.getString(cursor.getColumnIndex(SPORT_SUGGESTION));
             weather.suggestion.sport.brf = cursor.getString(cursor.getColumnIndex(SPORT_SUGGESTION_BRIEF));
@@ -260,14 +295,24 @@ public class PureWeatherDB {
             weather.suggestion.cw.txt = cursor.getString(cursor.getColumnIndex(CAR_WASH_SUGGESTION));
             weather.suggestion.cw.brf = cursor.getString(cursor.getColumnIndex(CAR_WASH_SUGGESTION_BRIEF));
 
+            int size = Integer.parseInt(cursor.getString(cursor.getColumnIndex(HOURLY_FORECAST_SIZE)));
+            for (int i=0;i<size;i++){
+                Weather.HourlyForecastInfo hourlyForecastInfo = new Weather.HourlyForecastInfo();
+                hourlyForecastInfo.date = cursor.getString(cursor.getColumnIndex(HOURLY_FORECAST_TIME[i]));
+                hourlyForecastInfo.tmp = cursor.getString(cursor.getColumnIndex(HOURLY_FORECAST_TEMP[i]));
+                hourlyForecastInfo.hum = cursor.getString(cursor.getColumnIndex(HOURLY_FORECAST_HUMIDITY[i]));
+                hourlyForecastInfo.pop = cursor.getString(cursor.getColumnIndex(HOURLY_FORECAST_RAINY_PRO[i]));
+                weather.hourlyForecast.add(hourlyForecastInfo);
+            }
+
             for (int i=0; i<7; i++){
-                weather.dailyForecast.get(i).date = cursor.getString(cursor.getColumnIndex(PureWeatherDB.FORECAST_DATE[i]));
-                weather.dailyForecast.get(i).hum = cursor.getString(cursor.getColumnIndex(PureWeatherDB.FORECAST_HUMIDITY[i]));
-                weather.dailyForecast.get(i).pop = cursor.getString(cursor.getColumnIndex(PureWeatherDB.FORECAST_RAINY_PRO[i]));
-                weather.dailyForecast.get(i).tmp.max = cursor.getString(cursor.getColumnIndex(PureWeatherDB.FORECAST_MAX_TEMP[i]));
-                weather.dailyForecast.get(i).tmp.min = cursor.getString(cursor.getColumnIndex(PureWeatherDB.FORECAST_MIN_TEMP[i]));
-                weather.dailyForecast.get(i).cond.codeD = cursor.getString(cursor.getColumnIndex(PureWeatherDB.FORECAST_IMAGE_CODE[i]));
-                weather.dailyForecast.get(i).cond.txtD = cursor.getString(cursor.getColumnIndex(PureWeatherDB.FORECAST_CONDITION[i]));
+                weather.dailyForecast.get(i).date = cursor.getString(cursor.getColumnIndex(FORECAST_DATE[i]));
+                weather.dailyForecast.get(i).hum = cursor.getString(cursor.getColumnIndex(FORECAST_HUMIDITY[i]));
+                weather.dailyForecast.get(i).pop = cursor.getString(cursor.getColumnIndex(FORECAST_RAINY_PRO[i]));
+                weather.dailyForecast.get(i).tmp.max = cursor.getString(cursor.getColumnIndex(FORECAST_MAX_TEMP[i]));
+                weather.dailyForecast.get(i).tmp.min = cursor.getString(cursor.getColumnIndex(FORECAST_MIN_TEMP[i]));
+                weather.dailyForecast.get(i).cond.codeD = cursor.getString(cursor.getColumnIndex(FORECAST_IMAGE_CODE[i]));
+                weather.dailyForecast.get(i).cond.txtD = cursor.getString(cursor.getColumnIndex(FORECAST_CONDITION[i]));
             }
         }
         if (cursor != null){

@@ -4,44 +4,55 @@
     package="com.example.arthur.pureweather">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:allowBackup="true"
         tools:replace ="android:icon"
-        android:icon="@drawable/my_logo"
+        android:icon="@drawable/temp_logo"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <service android:name="com.example.arthur.pureweather.service.ForegroundService"/>
+
+
+        <activity android:name=".activity.GuideActivity"
+            android:theme="@style/Guide">
+
+        </activity>
+
 
         <activity
             android:name="com.example.arthur.pureweather.activity.SearchActivity"
             android:windowSoftInputMode="adjustUnspecified|stateHidden"
-            android:theme="@style/AppTheme.Translucent">
+            android:theme="@style/AppTheme">
+
         </activity>
 
         <activity
             android:name="com.example.arthur.pureweather.activity.WeatherActivity"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme.Translucent">
+            android:theme="@style/AppTheme"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <activity
             android:name="com.example.arthur.pureweather.activity.CityManagerActivity"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme">
+            android:theme="@style/IndigoTheme">
 
         </activity>
         <activity
             android:name="com.example.arthur.pureweather.activity.MainActivity"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme.Translucent">
+            android:theme="@style/AppTheme">
 
         </activity>
-
+        <activity android:name=".activity.SettingActivity"
+            android:theme="@style/IndigoTheme">
+        </activity>
+        <activity android:name=".activity.AboutAppActivity"
+            android:theme="@style/IndigoTheme"/>
     </application>
 
 </manifest>

@@ -48,7 +48,7 @@
                     android:layout_height="16dp"
                     android:textColor="@color/colorWhite"
                     android:text="请输入城市名称"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:paddingLeft="@dimen/layout_margin_left"
                     android:gravity="left|center"/>
                 <LinearLayout
@@ -60,7 +60,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="match_parent"
-                        android:layout_marginLeft="@dimen/edit_text_margin_left"
+                        android:layout_marginLeft="@dimen/layout_margin_left"
                         android:textSize="14sp"
                         android:textColorHint="#f5f5f5"
                         android:textColor="@color/colorAccent"
@@ -84,31 +84,27 @@
                     android:layout_height="16dp"
                     android:textColor="@color/colorWhite"
                     android:text="搜索结果"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:paddingLeft="@dimen/layout_margin_left"
                     android:gravity="left|center"/>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="35dp"
-                    android:layout_marginLeft="@dimen/layout_margin_left"
                     android:layout_marginRight="@dimen/layout_margin_left"
                     android:orientation="horizontal">
-                    <LinearLayout
+                    <TextView
                         android:layout_width="0dp"
-                        android:layout_height="30dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
-                        <ListView
-                            android:layout_width="match_parent"
-                            android:layout_height="30dp"
-                            android:layout_weight="1"
-                            android:divider="@color/colorPrimary"
-                            android:id="@+id/search_result"/>
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1.8dp"
-                            android:background="@color/colorAccent"/>
-                    </LinearLayout>
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="@dimen/layout_margin_left"
+                        android:textSize="14sp"
+                        android:textColorHint="#f5f5f5"
+                        android:textColor="@color/colorAccent"
+                        android:singleLine="true"
+                        android:gravity="center"
+                        android:editable="true"
+                        android:background="@color/colorPrimary"
+                        android:id="@+id/search_result"/>
 
                     <Button
                         android:layout_width="56dp"
@@ -120,8 +116,12 @@
                         android:textSize="14sp"
                         android:id="@+id/clear_text_btn"/>
                 </LinearLayout>
-
-
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_marginLeft="76dp"
+                    android:layout_marginRight="132dp"
+                    android:layout_height="1.5dp"
+                    android:background="@color/colorAccent"/>
 
             </LinearLayout>
 
@@ -137,7 +137,7 @@
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/new_search_activity_content" />
+    <include layout="@layout/content_search_layout" />
 
 
 </android.support.design.widget.CoordinatorLayout>

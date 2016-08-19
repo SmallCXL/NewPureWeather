@@ -18,7 +18,7 @@ import android.widget.Toast;
 
 import com.example.arthur.pureweather.R;
 import com.example.arthur.pureweather.adapter.BriefWeatherAdapter;
-import com.example.arthur.pureweather.constant.MyString;
+import com.example.arthur.pureweather.constant.Constants;
 import com.example.arthur.pureweather.db.PureWeatherDB;
 import com.example.arthur.pureweather.modle.BriefWeather;
 
@@ -51,8 +51,8 @@ public class CityManagerActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.new_city_manager_layout);
-
+        setContentView(R.layout.activity_city_manager);
+        SysApplication.getInstance().addActivity(this);
         init();
         refreshRecyclerView(REFRESH);
 
@@ -62,6 +62,18 @@ public class CityManagerActivity extends AppCompatActivity {
             finish();
         }
 
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        lastCity = pref.getString(Constants.LAST_CITY, "");
+        refreshRecyclerView(REFRESH);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mRecyclerView.destroyDrawingCache();
     }
 
     private void init() {
@@ -74,7 +86,7 @@ public class CityManagerActivity extends AppCompatActivity {
         pureWeatherDB = PureWeatherDB.getInstance(this);
         editor = PreferenceManager.getDefaultSharedPreferences(CityManagerActivity.this).edit();
         pref = PreferenceManager.getDefaultSharedPreferences(CityManagerActivity.this);
-        lastCity = pref.getString(MyString.LAST_CITY, "");
+        lastCity = pref.getString(Constants.LAST_CITY, "");
         selectedIndex = -1;
     }
 
@@ -94,9 +106,8 @@ public class CityManagerActivity extends AppCompatActivity {
             @Override
             public void onItemClick(View view, int position) {
                 lastCity = briefWeathers.get(position).getCityName();
-                editor.putString(MyString.LAST_CITY, lastCity);
+                editor.putString(Constants.LAST_CITY, lastCity);
                 editor.commit();
-
                 Intent intent = new Intent(CityManagerActivity.this, WeatherActivity.class);
                 startActivity(intent);
                 finish();
@@ -111,16 +122,13 @@ public class CityManagerActivity extends AppCompatActivity {
 
         });
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setItemViewCacheSize(0);
         mRecyclerView.setAdapter(briefWeatherAdapter);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        lastCity = pref.getString(MyString.LAST_CITY, "");
-        refreshRecyclerView(REFRESH);
-    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -157,7 +165,7 @@ public class CityManagerActivity extends AppCompatActivity {
             // 正在删除最后一个元素
             lastCity = "";
         }
-        editor.putString(MyString.LAST_CITY, lastCity);
+        editor.putString(Constants.LAST_CITY, lastCity);
         editor.commit();
 
         pureWeatherDB.deleteWeatherInfo(cityName);
@@ -169,7 +177,7 @@ public class CityManagerActivity extends AppCompatActivity {
 
         //判断数据库是否有数据，如果有，则读取到cityList当中，并显示在ListView当中
         briefWeathers = pureWeatherDB.loadBriefWeatherInfo();
-        if (briefWeathers.size() > 0) {
+        if (briefWeathers != null && briefWeathers.size() > 0) {
             dataList.clear();
             for (BriefWeather w : briefWeathers) {
                 dataList.add(w);

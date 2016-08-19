@@ -38,7 +38,6 @@ public class BriefWeatherAdapter extends RecyclerView.Adapter<BriefWeatherAdapte
                 .inflate(R.layout.item_collection_list,parent,false));
     }
 
-    Class<com.example.arthur.pureweather.R.drawable> myDrawableClass = R.drawable.class;
     @Override
     public void onBindViewHolder(BriefWeatherViewHolder holder, int position) {
         holder.bind(context, weatherInfos.get(position), position);

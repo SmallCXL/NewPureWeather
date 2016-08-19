@@ -11,6 +11,27 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="colorControlNormal">@color/colorWhite</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <style name="IndigoTheme" parent="AppTheme.Base">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <!--状态栏颜色-->
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorControlNormal">@color/colorWhite</item>
+    </style>
+
+    <style name="GreenTheme" parent="AppTheme.Base">
+        <item name="colorPrimary">@color/greenPrimary</item>
+        <!--状态栏颜色-->
+        <item name="colorPrimaryDark">@color/greenPrimary</item>
+        <item name="colorAccent">@color/orangePrimary</item>
+        <item name="colorControlNormal">@color/colorWhite</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@color/orangePrimary</item>
     </style>
 
     <string name="AppTranslucent" parent="AppTheme">

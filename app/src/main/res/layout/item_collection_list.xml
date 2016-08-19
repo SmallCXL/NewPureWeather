@@ -41,69 +41,60 @@
                     android:gravity="center"/>
             </RelativeLayout>
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="@dimen/medium_interval"
                 android:orientation="vertical">
                 <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="0.89"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
                     android:text="阳江"
                     android:fontFamily="noto"
                     android:id="@+id/city_manager_card_view_title"
                     android:textColor="@color/textColor"
                     android:gravity="top|left"
-                    android:textSize="24sp"
-                    />
-
-                <LinearLayout
+                    android:textSize="24sp"/>
+                <View
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:layout_weight="1"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="多云"
+                    android:id="@+id/city_manager_card_view_condition"
+                    android:textColor="#757575"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-thin"
+                    android:gravity="center_vertical"/>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="多云"
-                            android:id="@+id/city_manager_card_view_condition"
-                            android:textColor="#757575"
-                            android:textSize="13sp"
-                            android:fontFamily="sans-serif-thin"
-                            android:gravity="center|left"/>
-
-
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="30°C ~ 28°C"
-                            android:id="@+id/city_manager_card_view_temp_range"
-                            android:textSize="12sp"
-                            android:fontFamily="sans-serif-thin"
-                            android:gravity="bottom|left"
-                            android:textStyle="bold"
-                            android:textColor="#757575"/>
-
-
-                </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="30°C ~ 28°C"
+                    android:id="@+id/city_manager_card_view_temp_range"
+                    android:layout_marginBottom="@dimen/medium_interval"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-thin"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textColor="#757575"/>
 
             </LinearLayout>
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="match_parent"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:orientation="vertical"
-                android:layout_weight="0.13">
+                android:orientation="vertical">
                 <TextView
                     android:id="@+id/city_manager_card_view_update_time"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginRight="@dimen/medium_interval"
+                    android:layout_gravity="right"
                     android:gravity="right"
                     android:textSize="12sp"
                     android:textStyle="bold"

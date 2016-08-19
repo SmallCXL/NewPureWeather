@@ -22,6 +22,7 @@ public class PureWeatherOpenHelper extends SQLiteOpenHelper {
     public static final String CREATE_WEATHER = "create table Weather (" +
             "city_name text, " +
             "city_id text primary key, " +
+            "country text," +
             "update_time text, " +
             "now_condition text, " +
             "now_temperature text, " +
@@ -37,6 +38,48 @@ public class PureWeatherOpenHelper extends SQLiteOpenHelper {
             "travel_suggestion_brief text," +
             "car_wash_suggestion text," +
             "car_wash_suggestion_brief text," +
+
+            "hourly_forecast_size text,"+
+
+            "hourly_forecast_1_time text," +
+            "hourly_forecast_1_temp text," +
+            "hourly_forecast_1_humidity text," +
+            "hourly_forecast_1_rainy_pro text," +
+
+            "hourly_forecast_2_time text," +
+            "hourly_forecast_2_temp text," +
+            "hourly_forecast_2_humidity text," +
+            "hourly_forecast_2_rainy_pro text," +
+
+            "hourly_forecast_3_time text," +
+            "hourly_forecast_3_temp text," +
+            "hourly_forecast_3_humidity text," +
+            "hourly_forecast_3_rainy_pro text," +
+
+            "hourly_forecast_4_time text," +
+            "hourly_forecast_4_temp text," +
+            "hourly_forecast_4_humidity text," +
+            "hourly_forecast_4_rainy_pro text," +
+
+            "hourly_forecast_5_time text," +
+            "hourly_forecast_5_temp text," +
+            "hourly_forecast_5_humidity text," +
+            "hourly_forecast_5_rainy_pro text," +
+
+            "hourly_forecast_6_time text," +
+            "hourly_forecast_6_temp text," +
+            "hourly_forecast_6_humidity text," +
+            "hourly_forecast_6_rainy_pro text," +
+
+            "hourly_forecast_7_time text," +
+            "hourly_forecast_7_temp text," +
+            "hourly_forecast_7_humidity text," +
+            "hourly_forecast_7_rainy_pro text," +
+
+            "hourly_forecast_8_time text," +
+            "hourly_forecast_8_temp text," +
+            "hourly_forecast_8_humidity text," +
+            "hourly_forecast_8_rainy_pro text," +
 
             "forecast_1_date text," +
             "forecast_1_humidity text," +

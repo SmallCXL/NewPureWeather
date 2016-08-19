@@ -6,11 +6,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.arthur.pureweather.R;
+import com.example.arthur.pureweather.utils.MyImageLoader;
 
 import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * Created by Administrator on 2016/7/14.
@@ -25,21 +30,15 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.CityViewHolder
     }
     @Override
     public CityViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
         return new CityViewHolder(LayoutInflater.from(context)
                 .inflate(R.layout.item_city_list,parent,false));
     }
 
     @Override
     public void onBindViewHolder(CityViewHolder holder, int position) {
-        holder.textView.setText(cityList.get(position));
+        holder.bind(cityList.get(position));
         if(mOnItemClickListener != null){
-            holder.cardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mOnItemClickListener.onItemClick(v, position);
-                }
-            });
+            holder.cardView.setOnClickListener(v -> mOnItemClickListener.onItemClick(v, position));
         }
     }
 
@@ -49,12 +48,21 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.CityViewHolder
     }
 
     class CityViewHolder extends RecyclerView.ViewHolder{
+        @Bind(R.id.search_city_recycle_view_city_title)
         TextView textView;
+        @Bind(R.id.search_city_recycle_view_city_image)
+        ImageView imageView;
+        @Bind(R.id.search_city_recycle_view_card)
         CardView cardView;
+
+
         public CityViewHolder(View itemView) {
             super(itemView);
-            cardView = ((CardView) itemView.findViewById(R.id.city_list_card_view));
-            textView = (TextView) itemView.findViewById(R.id.search_city_recycle_view_city_title);
+            ButterKnife.bind(this,itemView);
+        }
+        public void bind(String cityName){
+            textView.setText(cityName);
+            MyImageLoader.load(context,R.drawable.location,imageView);
         }
     }
 

@@ -1,6 +1,6 @@
 package com.example.arthur.pureweather.httpUtils;
 
-import com.example.arthur.pureweather.constant.MyString;
+import com.example.arthur.pureweather.constant.Constants;
 import com.example.arthur.pureweather.modle.Region;
 import com.example.arthur.pureweather.modle.VersionInfo;
 import com.example.arthur.pureweather.modle.WeatherResponse;
@@ -17,7 +17,7 @@ public class NetworkRequest {
     public static Observable<WeatherResponse> getWeatherWithName(final String cityName){
         return ServiceFactory
                 .getWeatherService()
-                .getWeatherData(cityName, MyString.HE_WEATHER_KEY);
+                .getWeatherData(cityName, Constants.HE_WEATHER_KEY);
     }
 
     public static Observable<List<Region>> getRegionWithCode(final String superCode){
@@ -29,7 +29,7 @@ public class NetworkRequest {
     public static Observable<VersionInfo> getNewVersion(){
         return ServiceFactory
                 .getVersionService()
-                .getVersionInfo(MyString.API_TOKEN);
+                .getVersionInfo(Constants.API_TOKEN);
     }
 
 }

@@ -1,6 +1,6 @@
 package com.example.arthur.pureweather.httpUtils;
 
-import com.example.arthur.pureweather.constant.MyString;
+import com.example.arthur.pureweather.constant.Constants;
 
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
@@ -39,7 +39,7 @@ public class ServiceFactory {
      */
     private static WeatherService createWeatherService() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(MyString.HE_WEATHER_BASE_URL)
+                .baseUrl(Constants.HE_WEATHER_BASE_URL)
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create()) // 添加Rx适配器，使Retrofit支持RxJava的Observable回调类型
                 .addConverterFactory(GsonConverterFactory.create()) // 添加Gson转换器
                 .build();
@@ -68,7 +68,7 @@ public class ServiceFactory {
      */
     private static RegionService createRegionService(String superCode) {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(MyString.CHINA_WEATHER_BASE_BRL)
+                .baseUrl(Constants.CHINA_WEATHER_BASE_BRL)
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create()) // 添加Rx适配器，使Retrofit支持RxJava的Observable回调类型
                 .addConverterFactory(RegionConverterFactory.create(superCode)) // 添加自定义的Province数据转换器
                 .build();
@@ -96,7 +96,7 @@ public class ServiceFactory {
      */
     private static VersionService createVersionService(){
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(MyString.CHECK_VERSION_BASE_URL)
+                .baseUrl(Constants.CHECK_VERSION_BASE_URL)
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
