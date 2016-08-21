@@ -15,7 +15,7 @@
         android:gravity="center"/>
     <ImageView
         android:layout_width="10dp"
-        android:layout_height="35dp"
+        android:layout_height="38dp"
         android:background="@drawable/node"
         android:layout_marginLeft="@dimen/medium_interval"
         android:layout_marginRight="@dimen/medium_interval"/>
@@ -31,10 +31,13 @@
         android:textColor="@color/textColor"
         android:id="@+id/hourly_forecast_temp"
         android:layout_marginLeft="@dimen/small_interval"
-        android:layout_marginRight="@dimen/large_interval"
         android:gravity="center"
         android:textSize="14sp"
         android:text="29°C"/>
+    <View
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"/>
     <ImageView
         android:layout_width="18dp"
         android:layout_height="18dp"
@@ -47,10 +50,13 @@
         android:textColor="@color/textColor"
         android:id="@+id/hourly_forecast_humidity"
         android:layout_marginLeft="@dimen/small_interval"
-        android:layout_marginRight="@dimen/large_interval"
         android:gravity="center"
         android:textSize="14sp"
         android:text="29%"/>
+    <View
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"/>
     <ImageView
         android:layout_width="18dp"
         android:layout_height="18dp"

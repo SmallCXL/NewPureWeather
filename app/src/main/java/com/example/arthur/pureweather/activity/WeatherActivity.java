@@ -92,7 +92,7 @@ public class WeatherActivity extends AppCompatActivity {
 
         if (TextUtils.isEmpty(lastCity)) {
             //没有lastCity，直接去搜索页面
-            Toast.makeText(WeatherActivity.this, "还没选择城市，快选择一个吧~", Toast.LENGTH_SHORT).show();
+            Toast.makeText(WeatherActivity.this, "先选择一个城市吧~", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, SearchActivity.class);
             startActivity(intent);
             finish();
@@ -100,6 +100,7 @@ public class WeatherActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         init();
         CheckVersion.autoCheck(WeatherActivity.this);
+
     }
 
     @Override

@@ -120,7 +120,7 @@
                     android:layout_width="match_parent"
                     android:layout_marginLeft="76dp"
                     android:layout_marginRight="132dp"
-                    android:layout_height="1.5dp"
+                    android:layout_height="1.8dp"
                     android:background="@color/colorAccent"/>
 
             </LinearLayout>

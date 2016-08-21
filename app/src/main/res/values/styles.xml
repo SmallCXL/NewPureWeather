@@ -38,9 +38,10 @@
     <!-- Base application theme. -->
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <style name="Guide" parent="AppTheme.Base">
-        <item name="android:background">@drawable/guide</item>
+    <style name="Launch" parent="AppTheme.Base">
         <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:background">@drawable/guide</item>
+        <item name="android:scaleType">centerCrop</item>
     </style>
 
 

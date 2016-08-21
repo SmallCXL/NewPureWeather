@@ -185,9 +185,13 @@ public class PureWeatherDB {
             value.put(MAX_TEMPERATURE, weather.dailyForecast.get(0).tmp.max);
             value.put(MIN_TEMPERATURE, weather.dailyForecast.get(0).tmp.min);
 
-            value.put(HOURLY_FORECAST_SIZE,weather.hourlyForecast.size());
-            if (weather.hourlyForecast.size() >0){
-                for (int i=0; i<weather.hourlyForecast.size();i++){
+            int size = weather.hourlyForecast.size();
+            if (size > 8){
+                size = 8;
+            }
+            value.put(HOURLY_FORECAST_SIZE,size);
+            if (size >0){
+                for (int i=0; i<size;i++){
                     value.put(HOURLY_FORECAST_TIME[i],weather.hourlyForecast.get(i).date.substring(11));
                     value.put(HOURLY_FORECAST_TEMP[i],weather.hourlyForecast.get(i).tmp);
                     value.put(HOURLY_FORECAST_HUMIDITY[i],weather.hourlyForecast.get(i).hum);

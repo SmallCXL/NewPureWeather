@@ -112,16 +112,13 @@ public class CheckVersion {
 
     public static void showUpdateDialog(final Context context, VersionInfo versionInfo, final String checkType) {
         String negativeText;
-//        boolean cancelable;
         switch (checkType) {
             case Constants.AUTO_CHECK:
-                negativeText = "稍候再说";
-//                cancelable = false;
+                negativeText = "稍候手动更新";
                 break;
             case Constants.MANUAL_CHECK:
             default:
                 negativeText = "取消";
-//                cancelable = true;
         }
         String title = "有新版本的识雨晴天气哦~";
         String body = versionInfo.changelog;

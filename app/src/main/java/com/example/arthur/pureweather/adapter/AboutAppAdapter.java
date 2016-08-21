@@ -9,9 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.arthur.pureweather.R;
 import com.example.arthur.pureweather.constant.Constants;
+import com.example.arthur.pureweather.utils.CheckVersion;
 import com.example.arthur.pureweather.utils.MyImageLoader;
 import com.example.arthur.pureweather.utils.Utils;
 

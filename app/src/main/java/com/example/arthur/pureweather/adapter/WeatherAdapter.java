@@ -21,6 +21,7 @@ import com.example.arthur.pureweather.modle.Weather;
 import com.example.arthur.pureweather.utils.ImageCodeConverter;
 import com.example.arthur.pureweather.utils.MyImageLoader;
 import com.example.arthur.pureweather.utils.RxBus;
+import com.example.arthur.pureweather.utils.Utils;
 import com.jakewharton.rxbinding.view.RxView;
 
 import java.text.ParseException;
@@ -49,8 +50,9 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private RxBus mRxBus;
     private final int NOW_CONDITION = 0;
     private final int DAILY_FORECAST = 1;
-    private final int HOURLY_FORECAST = 2;
-    private final int SUGGESTION = 3;
+    private final int SUGGESTION = 2;
+    private final int HOURLY_FORECAST = 3;
+
 
     public WeatherAdapter(Context context, List<Weather> weathers) {
         this.context = context;
@@ -75,6 +77,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        //注意，这个方法只会执行一次，每次notifyDataChange之后，并不会执行这个方法
         View view;
         switch (viewType) {
             case NOW_CONDITION:
@@ -83,18 +86,19 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             case DAILY_FORECAST:
                 view = LayoutInflater.from(context).inflate(R.layout.item_daily_forecast, parent, false);
                 return new DailyForecastViewHolder(view);
-            case HOURLY_FORECAST:
-                view = LayoutInflater.from(context).inflate(R.layout.item_hourly_forecast, parent, false);
-                return new HourlyForecastViewHolder(view);
             case SUGGESTION:
                 view = LayoutInflater.from(context).inflate(R.layout.item_suggestion, parent, false);
                 return new SuggestionViewHolder(view);
+            case HOURLY_FORECAST:
+                view = LayoutInflater.from(context).inflate(R.layout.item_hourly_forecast, parent, false);
+                return new HourlyForecastViewHolder(view);
         }
         return null;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int viewType) {
+        //这个方法在每次notifyDataChange之后，都会执行重新绑定的行为，一些需要变更的操作一般放在这个方法中
         switch (viewType) {
             case NOW_CONDITION:
                 ((NowConditionViewHolder) holder).bind(weathers.get(0));
@@ -120,10 +124,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             else return 3;
         }
         else {
-            if (weathers.get(0).hourlyForecast.size() >0){
-                return 3;
-            }
-            else return 2;
+            return 2;
         }
     }
 
@@ -154,7 +155,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             humidity.setText(weather.dailyForecast.get(0).hum + "%");
             rainyPos.setText(weather.dailyForecast.get(0).pop + "%");
             String range = new StringBuilder().append(weather.dailyForecast.get(0).tmp.max)
-                    .append("°C/ ")
+                    .append("°C~")
                     .append(weather.dailyForecast.get(0).tmp.min)
                     .append("°C").toString();
             tempRange.setText(range);
@@ -202,12 +203,17 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 forecastTextView[i] = ((TextView) itemView.findViewById(forecastTextViewId[i]));
                 forecastImageView[i] = ((ImageView) itemView.findViewById(forecastImageViewId[i]));
             }
-        }
-
-        @TargetApi(Build.VERSION_CODES.M)
-        public void bind(Weather weather) {
-            initData();
-            initCharView();
+            maxTemp = new ArrayList<>();
+            minTemp = new ArrayList<>();
+            humidity = new ArrayList<>();
+            rainyPos = new ArrayList<>();
+            xLabel = new ArrayList<>();
+            xLabel.add("今天");
+            xLabel.add("明天");
+            for (int i=2; i<7; i++){
+                String date = Utils.getDateOfWeek(weathers.get(0).dailyForecast.get(i).date);
+                xLabel.add(date);
+            }
             //负责将数据按钮类型和天气数据装载到点击事件中，然后发射事件
             RxView.clicks(maxTempBtn)
                     .throttleFirst(3000, TimeUnit.MICROSECONDS)
@@ -230,6 +236,25 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     .subscribe(aVoid -> {
                         onButtonClick(ContextCompat.getColor(context, R.color.indigoPrimary), "RAINY_PRO");
                     });
+        }
+
+        @TargetApi(Build.VERSION_CODES.M)
+        public void bind(Weather weather) {
+            initData(weather);//装数据、装图标和天气描述
+            initCharView();
+        }
+
+        private void initData(Weather weather){
+            minTemp.clear();
+            maxTemp.clear();
+            humidity.clear();
+            rainyPos.clear();
+            for (int i=0; i<7; i++){
+                maxTemp.add(Integer.parseInt(weather.dailyForecast.get(i).tmp.max));
+                minTemp.add(Integer.parseInt(weather.dailyForecast.get(i).tmp.min));
+                humidity.add(Integer.parseInt(weather.dailyForecast.get(i).hum));
+                rainyPos.add(Integer.parseInt(weather.dailyForecast.get(i).pop));
+            }
             for (int i=0; i<7; i++){
                 forecastTextView[i].setText(weather.dailyForecast.get(i).cond.txtD.replace("晴间", ""));//晴间多云  改为 多云，去掉多余信息保证页面整洁
                 MyImageLoader.load(context,
@@ -237,40 +262,6 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         }
 
-        private void initData(){
-            maxTemp = new ArrayList<>();
-            minTemp = new ArrayList<>();
-            humidity = new ArrayList<>();
-            rainyPos = new ArrayList<>();
-            xLabel = new ArrayList<>();
-
-            xLabel.add("今天");
-            xLabel.add("明天");
-            for (int i=2; i<7; i++){
-                String date = getDateOfWeek(weathers.get(0).dailyForecast.get(i).date);
-                xLabel.add(date);
-            }
-            for (int i=0; i<7; i++){
-                maxTemp.add(Integer.parseInt(weathers.get(0).dailyForecast.get(i).tmp.max));
-                minTemp.add(Integer.parseInt(weathers.get(0).dailyForecast.get(i).tmp.min));
-                humidity.add(Integer.parseInt(weathers.get(0).dailyForecast.get(i).hum));
-                rainyPos.add(Integer.parseInt(weathers.get(0).dailyForecast.get(i).pop));
-            }
-        }
-        private String getDateOfWeek(String date){
-            String[] dates = {"周日","周一","周二","周三","周四","周五","周六"};
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            try {
-                Date tempDate = sdf.parse(date);
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(tempDate);
-                int dateOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-                return dates[dateOfWeek - 1];
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            return "未知";
-        }
         @TargetApi(Build.VERSION_CODES.M)
         private void initCharView(){
             List<PointValue> pointValues = new ArrayList<>();
@@ -289,7 +280,6 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 pointValues.add(new PointValue(i, maxTemp.get(i)));
                 axisValues_x.add(new AxisValue(i).setLabel(xLabel.get(i)));
             }//生成7个点以及x轴的标签
-
             Line line = new Line(pointValues);
             line.setColor(ContextCompat.getColor(context, R.color.redPrimary));
             line.setCubic(true);//设置线条圆滑过渡
@@ -390,29 +380,38 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     class HourlyForecastViewHolder extends RecyclerView.ViewHolder{
         private LinearLayout hourlyForecastLayout;
-        private TextView[] time = new TextView[weathers.get(0).hourlyForecast.size()];
-        private TextView[] temp = new TextView[weathers.get(0).hourlyForecast.size()];
-        private TextView[] humidity = new TextView[weathers.get(0).hourlyForecast.size()];
-        private TextView[] rainyPro = new TextView[weathers.get(0).hourlyForecast.size()];
+        private List<TextView> time;
+        private List<TextView> temp;
+        private List<TextView> humidity;
+        private List<TextView> rainyPro;
         public HourlyForecastViewHolder(View itemView) {
             super(itemView);
             hourlyForecastLayout = (LinearLayout) itemView.findViewById(R.id.hourly_forecast_layout);
+            time = new ArrayList<>();
+            temp = new ArrayList<>();
+            humidity = new ArrayList<>();
+            rainyPro = new ArrayList<>();
+        }
+        public void bind(Weather weather){
+            time.clear();
+            temp.clear();
+            humidity.clear();
+            rainyPro.clear();
+            hourlyForecastLayout.removeAllViews();
             int size = weathers.get(0).hourlyForecast.size();
             for (int i=0; i<size; i++){
                 View item = View.inflate(context,R.layout.item_hour_forecast_detail,null);
-                time[i] = ((TextView) item.findViewById(R.id.hourly_forecast_time));
-                temp[i] = ((TextView) item.findViewById(R.id.hourly_forecast_temp));
-                humidity[i] = ((TextView) item.findViewById(R.id.hourly_forecast_humidity));
-                rainyPro[i] = ((TextView) item.findViewById(R.id.hourly_forecast_rainy_pro));
+                time.add((TextView) item.findViewById(R.id.hourly_forecast_time));
+                temp.add((TextView) item.findViewById(R.id.hourly_forecast_temp));
+                humidity.add((TextView) item.findViewById(R.id.hourly_forecast_humidity));
+                rainyPro.add((TextView) item.findViewById(R.id.hourly_forecast_rainy_pro));
                 hourlyForecastLayout.addView(item);
             }
-        }
-        public void bind(Weather weather){
-            for (int i = 0; i<weather.hourlyForecast.size();i++){
-                time[i].setText(weather.hourlyForecast.get(i).date);
-                temp[i].setText(weather.hourlyForecast.get(i).tmp + "°C");
-                humidity[i].setText(weather.hourlyForecast.get(i).hum + "%");
-                rainyPro[i].setText(weather.hourlyForecast.get(i).pop + "%");
+            for (int i = 0; i<size;i++){
+                time.get(i).setText(weather.hourlyForecast.get(i).date);
+                temp.get(i).setText(weather.hourlyForecast.get(i).tmp + "°C");
+                humidity.get(i).setText(weather.hourlyForecast.get(i).hum + "%");
+                rainyPro.get(i).setText(weather.hourlyForecast.get(i).pop + "%");
             }
         }
     }
