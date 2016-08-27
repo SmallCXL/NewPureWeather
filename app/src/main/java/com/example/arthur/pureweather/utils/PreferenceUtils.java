@@ -35,7 +35,7 @@ public class PreferenceUtils {
         mSharedPreferences.edit().putInt(key, value).commit();
     }
     public String getIntervalText(String key, int defaultInterval){
-        int interval = mSharedPreferences.getInt(key,0);
+        int interval = mSharedPreferences.getInt(key,defaultInterval);
         String text;
         if (interval == 0){
             text = new String("取消自动更新");

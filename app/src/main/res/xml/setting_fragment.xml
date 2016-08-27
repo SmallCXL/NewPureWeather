@@ -5,14 +5,14 @@
         <Preference
             android:key="preference_update_interval"
             android:title="自动更新间隔"
-            android:summary="4小时"
-            android:defaultValue="4"/>
+            android:defaultValue="1"/>
     </PreferenceCategory>
     <PreferenceCategory
         android:title="显示">
         <SwitchPreference
             android:key="preference_notification"
-            android:title="显示通知"/>
+            android:title="显示通知"
+            android:defaultValue="true"/>
         <SwitchPreference
             android:key="preference_has_label"
             android:title="图表显示标签"/>
@@ -24,7 +24,6 @@
         android:title="版本信息">
         <Preference
             android:key="preference_check_for_update"
-            android:title="检查更新"
-            android:summary="当前版本 V1.0"/>
+            android:title="检查更新"/>
     </PreferenceCategory>
 </PreferenceScreen>

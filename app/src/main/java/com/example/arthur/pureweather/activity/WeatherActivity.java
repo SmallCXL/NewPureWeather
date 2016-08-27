@@ -1,15 +1,14 @@
 package com.example.arthur.pureweather.activity;
 
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -50,6 +49,7 @@ import butterknife.ButterKnife;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 /**
@@ -57,7 +57,7 @@ import rx.schedulers.Schedulers;
  */
 public class WeatherActivity extends AppCompatActivity {
     private static Boolean isExit = false;
-
+    private ProgressDialog progressDialog;
     @Bind(R.id.toolbar_layout)
     CollapsingToolbarLayout collapsingToolbar;
 
@@ -77,11 +77,11 @@ public class WeatherActivity extends AppCompatActivity {
     @Bind(R.id.weather_recycler_view)
     RecyclerView mRecyclerView;
 
-    private PureWeatherDB pureWeatherDB;
-    private SharedPreferences pref;
-    private List<Weather> weathers;
-    private String lastCity = null;
-    private WeatherAdapter mAdapter;
+    PureWeatherDB pureWeatherDB;
+    SharedPreferences pref;
+    List<Weather> weathers;
+    String lastCity = null;
+    WeatherAdapter mAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -92,15 +92,18 @@ public class WeatherActivity extends AppCompatActivity {
 
         if (TextUtils.isEmpty(lastCity)) {
             //没有lastCity，直接去搜索页面
-            Toast.makeText(WeatherActivity.this, "先选择一个城市吧~", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, SearchActivity.class);
             startActivity(intent);
             finish();
+        }else {
+            ButterKnife.bind(this);
+            init();
+            showProgressDialog("更新中...");
+            Action0 closeDialog = () -> closeProgressDialog();
+            getWeatherByNetwork(lastCity, closeDialog);
+            CheckVersion.autoCheck(WeatherActivity.this);
+            startService(new Intent(this, ForegroundService.class));
         }
-        ButterKnife.bind(this);
-        init();
-        CheckVersion.autoCheck(WeatherActivity.this);
-
     }
 
     @Override
@@ -129,6 +132,7 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     private void initToolbar() {
+
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true); //设置返回键可用
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -158,7 +162,6 @@ public class WeatherActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mAdapter);
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
     private void initNavigationView() {
         View headerLayout = navigationView.inflateHeaderView(R.layout.nav_header_layout);
         final LinearLayout headerBackground = (LinearLayout) headerLayout.findViewById(R.id.nav_header_linear_layout);
@@ -219,50 +222,60 @@ public class WeatherActivity extends AppCompatActivity {
         //下拉刷新 .这里的Subscriber必须用匿名的，如果用事先定义好的观察者只能响应一次，待研究
         swipeRefreshLayout.setOnRefreshListener(() -> {
             lastCity = pref.getString(Constants.LAST_CITY, "");
-            NetworkRequest
-                    .getWeatherWithName(lastCity)
-                    .subscribeOn(Schedulers.newThread())
-                    .flatMap(weatherResponse -> Observable.from(weatherResponse.getWeathers()))
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnTerminate(() -> swipeRefreshLayout.setRefreshing(false))
-                    .subscribe(new Subscriber<Weather>() {
-                        @Override
-                        public void onCompleted() {
-
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            Toast.makeText(WeatherActivity.this, Constants.OUT_OF_NETWORK, Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onNext(Weather weather) {
-                            pureWeatherDB.saveWeather(weather);
-                            showWeather();
-                            Toast.makeText(WeatherActivity.this, "刷新完成~~", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+            Action0 stopAnim = () -> swipeRefreshLayout.setRefreshing(false);
+            getWeatherByNetwork(lastCity,stopAnim);
         });
         swipeRefreshLayout.setColorSchemeResources(R.color.indigoPrimary, R.color.greenPrimary, R.color.redPrimary);
+    }
+
+    private void getWeatherByNetwork(String cityName,Action0 finishAction) {
+        NetworkRequest.getWeatherWithName(cityName)
+                .subscribeOn(Schedulers.newThread())
+                .doOnSubscribe(finishAction)
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(weatherResponse -> weatherResponse.getWeathers())
+                .flatMap(weathers -> {
+                    if (weathers != null) {
+                        return Observable.from(weathers);
+                    } else
+                        return Observable.error(new Exception(Constants.OUT_OF_NETWORK));
+                })
+                .subscribe(new Subscriber<Weather>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Toast.makeText(WeatherActivity.this, Constants.OUT_OF_NETWORK, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onNext(Weather weather) {
+                        pureWeatherDB.saveWeather(weather);
+                        showWeather();
+                    }
+                });
     }
 
     private void showWeather() {
         lastCity = pref.getString(Constants.LAST_CITY, "");
         Weather weather = pureWeatherDB.loadWeatherInfo(lastCity);
 /************************************** 处理通知显示 *************/
-        boolean allowToShowNotice = pref.getBoolean(Constants.SHOW_NOTIFICATION,false);
-        if (allowToShowNotice){
+        boolean allowToShowNotice = pref.getBoolean(Constants.SHOW_NOTIFICATION, true);
+        if (allowToShowNotice) {
             showNotification(weather);
-        }else {
+        } else {
             closeNotification();
         }
 /************************************** 处理自动更新显示 *************/
-        boolean allowToAutoUpdate = (pref.getInt(Constants.UPDATE_INTERVAL,0) > 0);
+        boolean allowToAutoUpdate = (pref.getInt(Constants.UPDATE_INTERVAL, 1) > 0);
         Intent intent = new Intent(WeatherActivity.this, ForegroundService.class);
-        if (allowToAutoUpdate && !isServiceRunning(Constants.SERVICE_NAME)){
+        if (allowToAutoUpdate && !isServiceRunning(Constants.SERVICE_NAME)) {
             startService(intent);//原来停止服务，现在允许启动，开启服务
-        }else if (!allowToAutoUpdate && isServiceRunning(Constants.SERVICE_NAME)){
+        } else if (!allowToAutoUpdate && isServiceRunning(Constants.SERVICE_NAME)) {
             stopService(intent);//原来启动服务，现在禁止启动，停止服务
         }//其他情况不操作
 
@@ -277,7 +290,7 @@ public class WeatherActivity extends AppCompatActivity {
         mRecyclerView.smoothScrollToPosition(0);
     }
 
-    public void showNotification(Weather weather){
+    public void showNotification(Weather weather) {
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         Intent intent = new Intent(WeatherActivity.this, WeatherActivity.class);
         PendingIntent pi = PendingIntent
@@ -286,30 +299,32 @@ public class WeatherActivity extends AppCompatActivity {
         Notification notification = builder
                 .setContentIntent(pi)
                 .setContentTitle(weather.basic.city)
-                .setContentText(String.format("%s，温度: %s°C",weather.now.cond.txt,weather.now.tmp))
-                .setSmallIcon(ImageCodeConverter.getWeatherIconResource(weather.now.cond.code,"notice"))
+                .setContentText(String.format("%s，温度: %s°C", weather.now.cond.txt, weather.now.tmp))
+                .setSmallIcon(ImageCodeConverter.getWeatherIconResource(weather.now.cond.code, "notice"))
                 .setOngoing(true)
                 .build();
         notification.flags |= Notification.FLAG_ONGOING_EVENT; // 将此通知放到通知栏的"Ongoing"即"正在运行"组中
         notification.flags |= Notification.FLAG_NO_CLEAR;
         manager.notify(1, notification);
     }
-    public void closeNotification(){
+
+    public void closeNotification() {
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
     }
 
 
-    public boolean isServiceRunning(String serviceClassName){
+    public boolean isServiceRunning(String serviceClassName) {
         final ActivityManager activityManager = (ActivityManager) WeatherActivity.this.getSystemService(Context.ACTIVITY_SERVICE);
         final List<ActivityManager.RunningServiceInfo> services = activityManager.getRunningServices(Integer.MAX_VALUE);
 
         for (ActivityManager.RunningServiceInfo runningServiceInfo : services) {
-            if (runningServiceInfo.service.getClassName().equals(serviceClassName)){
+            if (runningServiceInfo.service.getClassName().equals(serviceClassName)) {
                 return true;
             }
         }
         return false;
     }
+
     /**
      * 菜单、返回键响应
      */
@@ -342,6 +357,26 @@ public class WeatherActivity extends AppCompatActivity {
             }, 2000); // 如果2秒钟内没有按下返回键，则启动定时器，取消掉刚才执行的任务
         } else {
             SysApplication.getInstance().exit();
+        }
+    }
+
+    private void showProgressDialog(String message) {
+        // TODO Auto-generated method stub
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setCanceledOnTouchOutside(false);
+        }
+        progressDialog.setMessage(message);
+        progressDialog.show();
+    }
+
+    /*
+     * 关闭进度对话框
+     */
+    private void closeProgressDialog() {
+        // TODO Auto-generated method stub
+        if (progressDialog != null) {
+            progressDialog.dismiss();
         }
     }
 }

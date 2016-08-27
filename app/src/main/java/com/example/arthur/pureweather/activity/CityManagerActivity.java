@@ -1,8 +1,10 @@
 package com.example.arthur.pureweather.activity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +23,7 @@ import com.example.arthur.pureweather.adapter.BriefWeatherAdapter;
 import com.example.arthur.pureweather.constant.Constants;
 import com.example.arthur.pureweather.db.PureWeatherDB;
 import com.example.arthur.pureweather.modle.BriefWeather;
+import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -47,11 +50,17 @@ public class CityManagerActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private BriefWeatherAdapter briefWeatherAdapter;
 
+    private ProgressDialog progressDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_city_manager);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//            SystemBarTintManager tintManager = new SystemBarTintManager(this);
+//            tintManager.setStatusBarTintEnabled(true);
+//            tintManager.setStatusBarTintResource(R.color.colorPrimary);
+//        }
         SysApplication.getInstance().addActivity(this);
         init();
         refreshRecyclerView(REFRESH);
@@ -204,5 +213,25 @@ public class CityManagerActivity extends AppCompatActivity {
                 break;
         }
         return super.onContextItemSelected(item);
+    }
+
+    private void showProgressDialog() {
+        // TODO Auto-generated method stub
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("正在定位中...");
+            progressDialog.setCanceledOnTouchOutside(false);
+        }
+        progressDialog.show();
+    }
+
+    /*
+     * 关闭进度对话框
+     */
+    private void closeProgressDialog() {
+        // TODO Auto-generated method stub
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
     }
 }

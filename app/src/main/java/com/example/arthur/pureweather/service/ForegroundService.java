@@ -68,7 +68,7 @@ public class ForegroundService extends Service {
         synchronized (this) {
             unSubscribe();
             if (isSubscribed == false) {
-                int interval = mSharedPreferences.getInt(Constants.UPDATE_INTERVAL,0);
+                int interval = mSharedPreferences.getInt(Constants.UPDATE_INTERVAL,1);
                 mSubscription = Observable
                         .interval(interval * Constants.ONE_HOUR, TimeUnit.SECONDS)
                         .takeWhile(aLong -> (interval > 0))
@@ -87,6 +87,7 @@ public class ForegroundService extends Service {
         lastCity = mSharedPreferences.getString(Constants.LAST_CITY, "");
         NetworkRequest.getWeatherWithName(lastCity)
                 .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
                 .map(weatherResponse -> weatherResponse.getWeathers())
                 .flatMap(weathers -> {
                     if (weathers != null) {

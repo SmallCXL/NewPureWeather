@@ -1,26 +1,37 @@
 package com.example.arthur.pureweather.activity;
 
-import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
 import com.example.arthur.pureweather.R;
 import com.example.arthur.pureweather.constant.Constants;
 import com.example.arthur.pureweather.httpUtils.NetworkRequest;
@@ -28,6 +39,7 @@ import com.example.arthur.pureweather.adapter.CityAdapter;
 import com.example.arthur.pureweather.db.PureWeatherDB;
 import com.example.arthur.pureweather.modle.Region;
 import com.example.arthur.pureweather.modle.Weather;
+import com.example.arthur.pureweather.utils.MyImageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +89,15 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     private Weather tempInfo;
     private CityAdapter cityAdapter;
 
+    private CardView locateCurrent;
     private CollapsingToolbarLayout collapsingToolbar;
+    //声明AMapLocationClient类对象
+    public AMapLocationClient mLocationClient = null;
+    //声明AMapLocationClientOption对象
+    public AMapLocationClientOption mLocationOption = null;
+    private AMapLocationListener aMapLocationListener;
+    private ImageView locateCurrentIcon;
+    private final int PERMISSION_REQUEST_CODE = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,13 +105,30 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_search_city);
         SysApplication.getInstance().addActivity(this);
         init();
-        getRegion(ChinaCode);
+        if (pref.getBoolean(Constants.IS_NEED_TO_CHECK,true)){
+            checkPermission();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        lastCity = pref.getString(Constants.LAST_CITY, "");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mRecyclerView.destroyDrawingCache();
+        if (mLocationClient != null){
+            mLocationClient.onDestroy();
+        }
     }
 
     private void init() {
         initData();
-        initToolbarLayout();
         initView();
+        initGaoDeLocate();
         initRecyclerView();
     }
 
@@ -102,6 +139,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         editor = PreferenceManager.getDefaultSharedPreferences(SearchActivity.this).edit();
         pref = PreferenceManager.getDefaultSharedPreferences(SearchActivity.this);
         lastCity = pref.getString(Constants.LAST_CITY, "");
+        getRegion(ChinaCode);
     }
 
     private void initView() {
@@ -110,15 +148,16 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         searchCity.setOnClickListener(this);
         clearData = ((Button) findViewById(R.id.clear_text_btn));
         clearData.setOnClickListener(this);
-
         searchResult = (TextView) findViewById(R.id.search_result);
         searchResult.setOnClickListener(this);
-    }
 
-    private void initToolbarLayout() {
+        locateCurrent = ((CardView) findViewById(R.id.search_city_my_location));
+        locateCurrent.setOnClickListener(this);
+        locateCurrentIcon = ((ImageView) findViewById(R.id.search_city_locate_image));
+        MyImageLoader.load(this, R.drawable.my_location, locateCurrentIcon);
+        /******************************** toolbar ********************************************/
         collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
         toolbar = ((Toolbar) findViewById(R.id.weather_toolbar));
-
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true); //设置返回键可用
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -192,22 +231,60 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         mRecyclerView.setAdapter(cityAdapter);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemViewCacheSize(0);
-
     }
 
-    @Override
-    public void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        mRecyclerView.destroyDrawingCache();
+    private void initGaoDeLocate() {
+        aMapLocationListener = new AMapLocationListener() {
+            @Override
+            public void onLocationChanged(AMapLocation amapLocation) {
+                closeProgressDialog();
+                if (amapLocation != null) {
+                    if (amapLocation.getErrorCode() == 0) {
+                        lastCity = amapLocation.getCity().replaceAll("(?:省|市|自治区|特别行政区|地区|盟)", "");
+                        getWeatherByNetwork(lastCity)
+                                .subscribe(new Subscriber<Weather>() {
+                                    @Override
+                                    public void onCompleted() {
+
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        Toast.makeText(SearchActivity.this, "定位失败，请稍候重试", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    @Override
+                                    public void onNext(Weather weather) {
+                                        pureWeatherDB.saveWeather(weather);
+                                        goToWeatherActivity();
+                                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                                    }
+                                });
+                    } else if (amapLocation.getErrorCode() == 12){
+                        Toast.makeText(SearchActivity.this, "缺少定位权限，无法使用定位功能", Toast.LENGTH_SHORT).show();
+                        checkPermission();
+                    }else {
+                        Toast.makeText(SearchActivity.this, "链接超时，请检查网络", Toast.LENGTH_SHORT).show();
+                        //定位失败时，可通过ErrCode（错误码）信息来确定失败的原因，errInfo是错误信息，详见错误码表。
+                        Log.e("AmapError", "location Error, ErrCode:"
+                                + amapLocation.getErrorCode() + ", errInfo:"
+                                + amapLocation.getErrorInfo());
+                    }
+                }
+            }
+        };
+        mLocationOption = new AMapLocationClientOption();
+        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+        //获取最近3s内精度最高的一次定位结果：
+        mLocationOption.setOnceLocationLatest(true);
+        mLocationOption.setNeedAddress(true);
     }
 
     private void goToWeatherActivity() {
-        editor.putString(Constants.LAST_CITY, lastCity);
-        editor.commit();
+        editor.putString(Constants.LAST_CITY, lastCity).commit();
         closeProgressDialog();
         mRecyclerView.destroyDrawingCache();
-        Intent intent = new Intent(SearchActivity.this, WeatherActivity.class);
-        startActivity(intent);
+        startActivity(new Intent(SearchActivity.this, WeatherActivity.class));
         finish();
     }
 
@@ -248,7 +325,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                         dataList.add((String) o);
                         cityAdapter.notifyDataSetChanged();
                         mRecyclerView.smoothScrollToPosition(0);
-
                     }
                 });
     }
@@ -257,7 +333,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         return NetworkRequest
                 .getRegionWithCode(superCode)
                 .subscribeOn(Schedulers.newThread())//事件产生线程为新建的线程
-                .doOnSubscribe(this::showProgressDialog)
+                .doOnSubscribe(() -> showProgressDialog("正在加载城市列表"))
                 .subscribeOn(AndroidSchedulers.mainThread())//显示对话框的线程为主线程
                 .doOnNext(regions -> {
                     if (regions != null) {
@@ -273,7 +349,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     private Observable<Weather> getWeatherByNetwork(String cityName) {
         return NetworkRequest.getWeatherWithName(cityName)
                 .subscribeOn(Schedulers.newThread())
-                .doOnSubscribe(this::showProgressDialog)
+                .doOnSubscribe(() -> showProgressDialog("正在加载天气数据..."))
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(weatherResponse -> weatherResponse.getWeathers())
@@ -284,16 +360,17 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                         return Observable.error(new Exception(Constants.OUT_OF_NETWORK));
                 });
     }
+
     /*
      * 显示下载进度对话框
      */
-    private void showProgressDialog() {
+    private void showProgressDialog(String message) {
         // TODO Auto-generated method stub
         if (progressDialog == null) {
             progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage("正在下载中...");
             progressDialog.setCanceledOnTouchOutside(false);
         }
+        progressDialog.setMessage(message);
         progressDialog.show();
     }
 
@@ -336,7 +413,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -380,7 +456,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 tempInfo = null;
                 break;
             case (R.id.search_result):
-                if ( (selectedResult != null) && !selectedResult.equals(Constants.SEARCH_FAIL) && (tempInfo != null)) {
+                if ((selectedResult != null) && !selectedResult.equals(Constants.SEARCH_FAIL) && (tempInfo != null)) {
                     pureWeatherDB.saveWeather(tempInfo);
                     editor.putString(Constants.LAST_CITY, selectedResult);
                     editor.commit();
@@ -388,6 +464,13 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                     startActivity(intent);
                     finish();
                 }
+                break;
+            case (R.id.search_city_my_location):
+                mLocationClient = new AMapLocationClient(SearchActivity.this);
+                mLocationClient.setLocationListener(aMapLocationListener);
+                mLocationClient.setLocationOption(mLocationOption);
+                mLocationClient.startLocation();
+                showProgressDialog("正在定位中...");
                 break;
         }
     }
@@ -404,16 +487,77 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         }
         return super.onOptionsItemSelected(item);
     }
-
     @Override
-    public void onResume() {
-        super.onResume();
-        lastCity = pref.getString(Constants.LAST_CITY, "");
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mRecyclerView.destroyDrawingCache();
+    }
+/******************************   checkPermission permission   *****************************/
+    public void checkPermission(){
+        List<String> needRequestPermissionList = findDeniedPermissions(Constants.NEEDED_PERMISSION);
+        if (null != needRequestPermissionList
+                && needRequestPermissionList.size() > 0) {
+            ActivityCompat.requestPermissions(SearchActivity.this,
+                    needRequestPermissionList.toArray(
+                            new String[needRequestPermissionList.size()]),
+                    PERMISSION_REQUEST_CODE);
+        }
+    }
+    private List<String> findDeniedPermissions(String[] permissions) {
+        List<String> needRequestPermissionList = new ArrayList<>();
+        for (String perm : permissions) {
+            if (ContextCompat.checkSelfPermission(SearchActivity.this,
+                    perm) != PackageManager.PERMISSION_GRANTED) {
+                needRequestPermissionList.add(perm);
+            } else {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(
+                        SearchActivity.this, perm)) {
+                    needRequestPermissionList.add(perm);
+                }
+            }
+        }
+        return needRequestPermissionList;
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] paramArrayOfInt) {
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (!verifyPermissions(paramArrayOfInt)) {
+                showMissingPermissionDialog();
+                editor.putBoolean(Constants.IS_NEED_TO_CHECK,false).commit();
+            }
+        }
+    }
+    private boolean verifyPermissions(int[] grantResults) {
+        for (int result : grantResults) {
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mRecyclerView.destroyDrawingCache();
+    private void showMissingPermissionDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(SearchActivity.this);
+        builder
+                .setTitle(R.string.notifyTitle)
+                .setMessage(R.string.notifyMsg)
+                .setNegativeButton(R.string.cancel,
+                        (dialog, which) -> {
+                            editor.putBoolean(Constants.IS_NEED_TO_CHECK,true).commit();
+                            SysApplication.getInstance().exit();
+                        })
+                .setPositiveButton(R.string.setting,
+                        (dialog, which) -> {
+                            startAppSettings();
+                        })
+                .setCancelable(false)
+                .show();
+    }
+
+    private void startAppSettings() {
+        Intent intent = new Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.setData(Uri.parse("package:" + getPackageName()));
+        startActivity(intent);
     }
 }

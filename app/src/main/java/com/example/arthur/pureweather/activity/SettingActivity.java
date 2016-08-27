@@ -15,7 +15,6 @@ import com.example.arthur.pureweather.R;
  * Created by Administrator on 2016/8/8.
  */
 public class SettingActivity extends AppCompatActivity {
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

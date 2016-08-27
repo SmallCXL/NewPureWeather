@@ -1,5 +1,7 @@
 package com.example.arthur.pureweather.constant;
 
+import android.Manifest;
+
 public class Constants {
     /*
     Comment key
@@ -11,7 +13,8 @@ public class Constants {
     public static final int ONE_HOUR = 60 * 60;
     public static final String GIT_HUB_ADDRESS = "https://github.com/SmallCXL/NewPureWeather";
     public static final String EMAIL_ADDRESS = "415318545@qq.com";
-    public static final String DONATION_ADDERSS = "18023891508";
+    public static final String DONATION_ADDRESS = "18023891508";
+    public static final String IS_NEED_TO_CHECK = "is_need_to_check";
     /*
     APP Key
     */
@@ -46,4 +49,15 @@ public class Constants {
     class name
      */
     public static final String SERVICE_NAME = "com.example.arthur.pureweather.service.ForegroundService";
+    /*
+    permissions to checkPermission
+     */
+    public static final String[] NEEDED_PERMISSION = {
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.READ_PHONE_STATE
+    };
+
 }

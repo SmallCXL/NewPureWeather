@@ -40,7 +40,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
         checkForUpdate.setOnPreferenceClickListener(this);
 
         updateInterval = findPreference(Constants.UPDATE_INTERVAL);
-        String intervalText = mPreferenceUtils.getIntervalText(Constants.UPDATE_INTERVAL, 0);
+        String intervalText = mPreferenceUtils.getIntervalText(Constants.UPDATE_INTERVAL, 1);
         updateInterval.setSummary(intervalText);
         updateInterval.setOnPreferenceClickListener(this);
 
@@ -49,6 +49,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
 
         showNotification = findPreference(Constants.SHOW_NOTIFICATION);
         showNotification.setOnPreferenceClickListener(this);
+        showNotification.setDefaultValue(true);
 
         hasLabel = findPreference(Constants.HAS_LABEL);
         hasLabel.setOnPreferenceClickListener(this);
@@ -80,7 +81,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
         SeekBar seekBar = ((SeekBar) dialogLayout.findViewById(R.id.update_dialog_seek_bar));
         TextView interval = ((TextView) dialogLayout.findViewById(R.id.update_dialog_content));
         Button check = ((Button) dialogLayout.findViewById(R.id.update_dialog_btn));
-        seekBar.setProgress(mPreferenceUtils.getInt(Constants.UPDATE_INTERVAL, 0));
+        seekBar.setProgress(mPreferenceUtils.getInt(Constants.UPDATE_INTERVAL, 1));
 
         interval.setText(new StringBuilder().append("更新间隔：").append(seekBar.getProgress()).append("小时").toString());
         updateDialog.show();
@@ -103,7 +104,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
         });
         check.setOnClickListener(v -> {
             mPreferenceUtils.putInt(Constants.UPDATE_INTERVAL, seekBar.getProgress());
-            String text = mPreferenceUtils.getIntervalText(Constants.UPDATE_INTERVAL, 0);
+            String text = mPreferenceUtils.getIntervalText(Constants.UPDATE_INTERVAL, 1);
             updateInterval.setSummary(text);
             updateDialog.dismiss();
         });

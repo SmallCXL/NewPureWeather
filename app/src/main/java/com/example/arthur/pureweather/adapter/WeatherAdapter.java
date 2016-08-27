@@ -238,7 +238,6 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     });
         }
 
-        @TargetApi(Build.VERSION_CODES.M)
         public void bind(Weather weather) {
             initData(weather);//装数据、装图标和天气描述
             initCharView();
@@ -262,7 +261,6 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         }
 
-        @TargetApi(Build.VERSION_CODES.M)
         private void initCharView(){
             List<PointValue> pointValues = new ArrayList<>();
             List<AxisValue> axisValues_x = new ArrayList<>();
