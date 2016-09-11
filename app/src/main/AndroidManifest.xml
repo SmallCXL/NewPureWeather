@@ -28,7 +28,27 @@
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="158c47cb0cfcce25c35e39683dfc68f1"/>
-        <service android:name="com.example.arthur.pureweather.service.ForegroundService"/>
+        <service
+            android:name="com.example.arthur.pureweather.service.ForegroundService">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APP_WIDGET_SERVICE"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".service.TimeService"/>
+        <service android:name=".service.BackupTimeService"/>
+
+        <!-- 声明widget对应的AppWidgetProvider -->
+        <receiver android:name=".widget.AppWidget" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.example.arthur.pureweather.widget.UPDATE_ALL"/>
+                <action android:name="com.example.arthur.pureweather.widget.UPDATE_TIME"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/appwidget_info" />
+        </receiver>
 
         <activity android:name=".activity.GuideActivity"
             android:theme="@style/Launch">

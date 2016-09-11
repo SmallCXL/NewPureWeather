@@ -33,6 +33,7 @@ import com.example.arthur.pureweather.constant.Constants;
 import com.example.arthur.pureweather.httpUtils.NetworkRequest;
 import com.example.arthur.pureweather.modle.Weather;
 import com.example.arthur.pureweather.service.ForegroundService;
+import com.example.arthur.pureweather.service.TimeService;
 import com.example.arthur.pureweather.utils.CheckVersion;
 import com.example.arthur.pureweather.utils.MyImageLoader;
 import com.example.arthur.pureweather.db.PureWeatherDB;
@@ -103,6 +104,7 @@ public class WeatherActivity extends AppCompatActivity {
             getWeatherByNetwork(lastCity, closeDialog);
             CheckVersion.autoCheck(WeatherActivity.this);
             startService(new Intent(this, ForegroundService.class));
+            startService(new Intent(this, TimeService.class));
         }
     }
 
@@ -261,6 +263,7 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     private void showWeather() {
+        sendBroadcast(new Intent(Constants.ON_UPDATE_WIDGET_ALL));
         lastCity = pref.getString(Constants.LAST_CITY, "");
         Weather weather = pureWeatherDB.loadWeatherInfo(lastCity);
 /************************************** 处理通知显示 *************/
@@ -299,7 +302,7 @@ public class WeatherActivity extends AppCompatActivity {
         Notification notification = builder
                 .setContentIntent(pi)
                 .setContentTitle(weather.basic.city)
-                .setContentText(String.format("%s，温度: %s°C", weather.now.cond.txt, weather.now.tmp))
+                .setContentText(String.format("%s°C，%s",  weather.now.tmp,weather.now.cond.txt))
                 .setSmallIcon(ImageCodeConverter.getWeatherIconResource(weather.now.cond.code, "notice"))
                 .setOngoing(true)
                 .build();

@@ -23,5 +23,6 @@
     
     <color name="transparent">#00000000</color>
     <color name="card_view_background">#eeeeee</color>
+    <color name="widget_background">#88212121</color>
 
 </resources>

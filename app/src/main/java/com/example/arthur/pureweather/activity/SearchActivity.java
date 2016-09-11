@@ -205,6 +205,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                                                 case "ok":
                                                     pureWeatherDB.saveWeather(weather);
                                                     lastCity = selectedRegion.getName();
+//                                                    sendBroadcast(new Intent(Constants.ON_UPDATE_WIDGET_ALL));
                                                     goToWeatherActivity();
                                                     break;
                                                 case "unknown city":
@@ -256,6 +257,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                                     @Override
                                     public void onNext(Weather weather) {
                                         pureWeatherDB.saveWeather(weather);
+//                                        sendBroadcast(new Intent(Constants.ON_UPDATE_WIDGET_ALL));
                                         goToWeatherActivity();
                                         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                                     }
@@ -458,11 +460,9 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             case (R.id.search_result):
                 if ((selectedResult != null) && !selectedResult.equals(Constants.SEARCH_FAIL) && (tempInfo != null)) {
                     pureWeatherDB.saveWeather(tempInfo);
-                    editor.putString(Constants.LAST_CITY, selectedResult);
-                    editor.commit();
-                    Intent intent = new Intent(SearchActivity.this, WeatherActivity.class);
-                    startActivity(intent);
-                    finish();
+                    lastCity = selectedResult;
+//                    sendBroadcast(new Intent(Constants.ON_UPDATE_WIDGET_ALL));
+                    goToWeatherActivity();
                 }
                 break;
             case (R.id.search_city_my_location):
@@ -537,8 +537,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void showMissingPermissionDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(SearchActivity.this);
-        builder
+        new AlertDialog.Builder(SearchActivity.this)
                 .setTitle(R.string.notifyTitle)
                 .setMessage(R.string.notifyMsg)
                 .setNegativeButton(R.string.cancel,

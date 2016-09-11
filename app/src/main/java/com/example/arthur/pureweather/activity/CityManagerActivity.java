@@ -117,6 +117,7 @@ public class CityManagerActivity extends AppCompatActivity {
                 lastCity = briefWeathers.get(position).getCityName();
                 editor.putString(Constants.LAST_CITY, lastCity);
                 editor.commit();
+//                sendBroadcast(new Intent(Constants.ON_UPDATE_WIDGET_ALL));
                 Intent intent = new Intent(CityManagerActivity.this, WeatherActivity.class);
                 startActivity(intent);
                 finish();
@@ -213,25 +214,5 @@ public class CityManagerActivity extends AppCompatActivity {
                 break;
         }
         return super.onContextItemSelected(item);
-    }
-
-    private void showProgressDialog() {
-        // TODO Auto-generated method stub
-        if (progressDialog == null) {
-            progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage("正在定位中...");
-            progressDialog.setCanceledOnTouchOutside(false);
-        }
-        progressDialog.show();
-    }
-
-    /*
-     * 关闭进度对话框
-     */
-    private void closeProgressDialog() {
-        // TODO Auto-generated method stub
-        if (progressDialog != null) {
-            progressDialog.dismiss();
-        }
     }
 }

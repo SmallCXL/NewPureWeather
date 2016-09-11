@@ -60,4 +60,9 @@ public class Constants {
             Manifest.permission.READ_PHONE_STATE
     };
 
+    public static final String ON_UPDATE_WIDGET_TIME = "com.example.arthur.pureweather.widget.UPDATE_TIME";
+    public static final String ON_UPDATE_WIDGET_ALL = "com.example.arthur.pureweather.widget.UPDATE_ALL";
+
+
+
 }

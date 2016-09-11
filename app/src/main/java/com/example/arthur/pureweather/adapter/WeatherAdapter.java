@@ -1,8 +1,6 @@
 package com.example.arthur.pureweather.adapter;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -24,12 +22,8 @@ import com.example.arthur.pureweather.utils.RxBus;
 import com.example.arthur.pureweather.utils.Utils;
 import com.jakewharton.rxbinding.view.RxView;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -179,11 +173,18 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         @Bind(R.id.rainy_pos_btn)
         Button rainyPosBtn;
 
-        int forecastTextViewId[] ={
+        int forecastConditionTextId[] ={
                 R.id.forecast_1_condition,R.id.forecast_2_condition,R.id.forecast_3_condition,
                 R.id.forecast_4_condition,R.id.forecast_5_condition,R.id.forecast_6_condition,
                 R.id.forecast_7_condition};
         private TextView[] forecastTextView = new TextView[7];
+
+        int forecastDateId[] ={
+                R.id.forecast_1_date,R.id.forecast_2_date,R.id.forecast_3_date,
+                R.id.forecast_4_date,R.id.forecast_5_date,R.id.forecast_6_date,
+                R.id.forecast_7_date};
+        private TextView[] forecastDate = new TextView[7];
+
         int forecastImageViewId[] ={
                 R.id.forecast_1_image,R.id.forecast_2_image,R.id.forecast_3_image,
                 R.id.forecast_4_image,R.id.forecast_5_image,R.id.forecast_6_image,
@@ -200,8 +201,9 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             super(itemView);
             ButterKnife.bind(this, itemView);
             for (int i=0; i<7; i++){
-                forecastTextView[i] = ((TextView) itemView.findViewById(forecastTextViewId[i]));
+                forecastTextView[i] = ((TextView) itemView.findViewById(forecastConditionTextId[i]));
                 forecastImageView[i] = ((ImageView) itemView.findViewById(forecastImageViewId[i]));
+                forecastDate[i] = ((TextView) itemView.findViewById(forecastDateId[i]));
             }
             maxTemp = new ArrayList<>();
             minTemp = new ArrayList<>();
@@ -213,6 +215,9 @@ public class WeatherAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             for (int i=2; i<7; i++){
                 String date = Utils.getDateOfWeek(weathers.get(0).dailyForecast.get(i).date);
                 xLabel.add(date);
+            }
+            for (int i=0;i<7;i++){
+                forecastDate[i].setText(weathers.get(0).dailyForecast.get(i).date.substring(5));
             }
             //负责将数据按钮类型和天气数据装载到点击事件中，然后发射事件
             RxView.clicks(maxTempBtn)

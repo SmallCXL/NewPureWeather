@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -35,11 +36,8 @@ import rx.subscriptions.CompositeSubscription;
  */
 public class ForegroundService extends Service {
     public SharedPreferences mSharedPreferences;
-    private static CompositeSubscription allSubscription;
-    private static Subscription mSubscription;
     private String lastCity;
     private PureWeatherDB pureWeatherDB;
-    private boolean isSubscribed = false;
 
     @Nullable
     @Override
@@ -51,34 +49,27 @@ public class ForegroundService extends Service {
     public void onCreate() {
         super.onCreate();
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        allSubscription = new CompositeSubscription();
         pureWeatherDB = PureWeatherDB.getInstance(this);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unSubscribe();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //在服务的生命周期内每次启动服务，都会调用这个方法，为了保证系统只启动一个通知，需要进行同步监测处理
         //本类服务需要一直在后台执行定期更新数据的任务，IntentService不合适
-        synchronized (this) {
-            unSubscribe();
-            if (isSubscribed == false) {
-                int interval = mSharedPreferences.getInt(Constants.UPDATE_INTERVAL,1);
-                mSubscription = Observable
-                        .interval(interval * Constants.ONE_HOUR, TimeUnit.SECONDS)
-                        .takeWhile(aLong -> (interval > 0))
-                        .subscribe(aLong -> {
-                            isSubscribed = true;
-                            getWeatherByNetwork();
-                        });
-                allSubscription.add(mSubscription);
-            }
-        }
+
+        int interval = mSharedPreferences.getInt(Constants.UPDATE_INTERVAL, 1);
+        Observable
+                .interval(interval * Constants.ONE_HOUR, TimeUnit.SECONDS)
+//                        .interval(6, TimeUnit.SECONDS)
+                .takeWhile(aLong -> (interval > 0))
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(aLong -> getWeatherByNetwork());
+
         return START_STICKY;
         //此出也可以返回START_STICKY,因为在传入的intent中没有携带数据
     }
@@ -86,7 +77,6 @@ public class ForegroundService extends Service {
     public void getWeatherByNetwork() {
         lastCity = mSharedPreferences.getString(Constants.LAST_CITY, "");
         NetworkRequest.getWeatherWithName(lastCity)
-                .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(weatherResponse -> weatherResponse.getWeathers())
                 .flatMap(weathers -> {
@@ -110,9 +100,12 @@ public class ForegroundService extends Service {
                     public void onNext(Weather weather) {
                         if (weather != null) {
                             pureWeatherDB.saveWeather(weather);
-                            if (mSharedPreferences.getBoolean(Constants.SHOW_NOTIFICATION,true)){
+                            Intent intent = new Intent(Constants.ON_UPDATE_WIDGET_ALL);
+                            //发送更新桌面部件的广播
+                            sendBroadcast(intent);
+                            if (mSharedPreferences.getBoolean(Constants.SHOW_NOTIFICATION, true)) {
                                 showNotification(weather);
-                            }else {
+                            } else {
                                 closeNotification();
                             }
                         }
@@ -129,7 +122,7 @@ public class ForegroundService extends Service {
         Notification notification = builder
                 .setContentIntent(pi)
                 .setContentTitle(weather.basic.city)
-                .setContentText(String.format("%s，温度: %s°C",weather.now.cond.txt,weather.now.tmp))
+                .setContentText(String.format("%s°C，%s",  weather.now.tmp,weather.now.cond.txt))
                 .setSmallIcon(ImageCodeConverter.getWeatherIconResource(weather.now.cond.code, "notice"))
                 .setOngoing(true)
                 .build();
@@ -137,14 +130,9 @@ public class ForegroundService extends Service {
         notification.flags |= Notification.FLAG_NO_CLEAR;
         mNotificationManager.notify(1, notification);
     }
-    public void closeNotification(){
+
+    public void closeNotification() {
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
     }
 
-    private void unSubscribe() {
-        if (isSubscribed) {
-            allSubscription.remove(mSubscription);
-            isSubscribed = false;
-        }
-    }
 }

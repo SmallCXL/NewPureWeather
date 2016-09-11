@@ -128,12 +128,21 @@
                     <View
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="0.6"/>
+                        android:layout_weight="0.65"/>
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/forecast_1_date"
+                            android:layout_gravity="center"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/textColorLight"
+                            android:text="18号"/>
                         <ImageView
                             android:layout_width="25dp"
                             android:layout_height="25dp"
@@ -145,7 +154,7 @@
                             android:textSize="12sp"
                             android:id="@+id/forecast_1_condition"
                             android:layout_marginTop="1dp"
-                            android:fontFamily="sans-serif-thin"
+                            android:fontFamily="sans-serif"
                             android:textColor="@color/textColor"
                             android:layout_gravity="center"
                             android:text="多云"/>
@@ -159,6 +168,15 @@
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/forecast_2_date"
+                            android:layout_gravity="center"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/textColorLight"
+                            android:text="18号"/>
                         <ImageView
                             android:layout_width="25dp"
                             android:layout_height="25dp"
@@ -170,7 +188,7 @@
                             android:textSize="12sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_2_condition"
-                            android:fontFamily="sans-serif-thin"
+                            android:fontFamily="sans-serif"
                             android:textColor="@color/textColor"
                             android:layout_gravity="center"
                             android:text="多云"/>
@@ -184,6 +202,15 @@
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/forecast_3_date"
+                            android:layout_gravity="center"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/textColorLight"
+                            android:text="18号"/>
                         <ImageView
                             android:layout_width="25dp"
                             android:layout_height="25dp"
@@ -195,7 +222,7 @@
                             android:textSize="12sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_3_condition"
-                            android:fontFamily="sans-serif-thin"
+                            android:fontFamily="sans-serif"
                             android:textColor="@color/textColor"
                             android:layout_gravity="center"
                             android:text="多云"/>
@@ -209,6 +236,15 @@
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/forecast_4_date"
+                            android:layout_gravity="center"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/textColorLight"
+                            android:text="18号"/>
                         <ImageView
                             android:layout_width="25dp"
                             android:layout_height="25dp"
@@ -220,7 +256,7 @@
                             android:textSize="12sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_4_condition"
-                            android:fontFamily="sans-serif-thin"
+                            android:fontFamily="sans-serif"
                             android:textColor="@color/textColor"
                             android:layout_gravity="center"
                             android:text="多云"/>
@@ -234,6 +270,15 @@
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/forecast_5_date"
+                            android:layout_gravity="center"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/textColorLight"
+                            android:text="18号"/>
                         <ImageView
                             android:layout_width="25dp"
                             android:layout_height="25dp"
@@ -245,7 +290,7 @@
                             android:textSize="12sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_5_condition"
-                            android:fontFamily="sans-serif-thin"
+                            android:fontFamily="sans-serif"
                             android:textColor="@color/textColor"
                             android:layout_gravity="center"
                             android:text="多云"/>
@@ -259,6 +304,15 @@
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/forecast_6_date"
+                            android:layout_gravity="center"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/textColorLight"
+                            android:text="18号"/>
                         <ImageView
                             android:layout_width="25dp"
                             android:layout_height="25dp"
@@ -270,7 +324,7 @@
                             android:textSize="12sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_6_condition"
-                            android:fontFamily="sans-serif-thin"
+                            android:fontFamily="sans-serif"
                             android:textColor="@color/textColor"
                             android:layout_gravity="center"
                             android:text="多云"/>
@@ -284,6 +338,15 @@
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/forecast_7_date"
+                            android:layout_gravity="center"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/textColorLight"
+                            android:text="18号"/>
                         <ImageView
                             android:layout_width="25dp"
                             android:layout_height="25dp"
@@ -295,7 +358,7 @@
                             android:textSize="12sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_7_condition"
-                            android:fontFamily="sans-serif-thin"
+                            android:fontFamily="sans-serif"
                             android:textColor="@color/textColor"
                             android:layout_gravity="center"
                             android:text="多云"/>

@@ -20,12 +20,11 @@
     </string>
     <string name="donation">如果你觉得识雨晴天气对你有帮助，并且坚信自己是个土豪，想请我喝杯咖啡以资鼓励也是极好的~数额不在乎多少，你的肯定与满意很重要！感谢~
     </string>
-    <string name="app_feedback">独自一人开发的应用肯定存在许多缺陷和待提升的地方，你在使用过程用有任何的意见、建议或者BUG反馈，请发邮件到我的QQ邮箱：415318545@qq.com，或者直接在github上提交议题。限于个人精力、水平有限，不一定能够全部按照你们的需求更改，但我一定会认真阅读你们的反馈，谢谢~
+    <string name="app_feedback">独自一人开发的应用肯定存在许多缺陷和待提升的地方，你在使用过程中有任何的意见、建议或者BUG反馈，请发邮件到我的QQ邮箱：415318545@qq.com，或者直接在github上提交议题。限于个人精力、水平有限，不一定能够全部按照你们的需求更改，但我一定会认真阅读你们的反馈，谢谢~
     </string>
     <string name="copy_right">图片资源来源于网络，版权属于原作者.\n\nCopyright 2016 SmallCXL Licensed under the Apache License, Version 2.0 (the \"License\")
         you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
         Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.\n
-
     </string>
     <string name="notifyTitle">提示</string>
     <string name="notifyMsg">当前应用缺少必要权限。\n\n请点击\"设置\"-\"权限\"-打开所需权限。</string>
