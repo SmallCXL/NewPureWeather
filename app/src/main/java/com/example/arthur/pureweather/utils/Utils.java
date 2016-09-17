@@ -3,6 +3,7 @@ package com.example.arthur.pureweather.utils;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.text.ParseException;
@@ -34,4 +35,5 @@ public class Utils {
         }
         return "未知";
     }
+
 }

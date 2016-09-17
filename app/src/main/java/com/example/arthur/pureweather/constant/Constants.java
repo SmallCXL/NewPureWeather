@@ -10,7 +10,8 @@ public class Constants {
     public static final String MANUAL_CHECK = "manual_check";
     public static final String IGNORE_UPDATE = "ignore_update";
     public static final String LAST_CITY = "last_city";
-    public static final int ONE_HOUR = 60 * 60;
+    public static final String MY_LOCATION = "my_location";
+    public static final int ONE_HOUR = 60 * 60 * 1000;// 增加更新频率
     public static final String GIT_HUB_ADDRESS = "https://github.com/SmallCXL/NewPureWeather";
     public static final String EMAIL_ADDRESS = "415318545@qq.com";
     public static final String DONATION_ADDRESS = "18023891508";
@@ -19,6 +20,7 @@ public class Constants {
     APP Key
     */
     public static final String HE_WEATHER_KEY = "37fa5d4ad1ea4d5da9f37e75732fb2e7";
+//    public static final String HE_WEATHER_KEY = "511077d0f15f4d82bf772dd18ce894b7";
     public static final String API_TOKEN = "dae845dc49739f113a00784ac777b94f";
     public static final String PURE_WEATHER_ID = "57a5ba23548b7a60b1000733";
     /*
@@ -38,6 +40,7 @@ public class Constants {
     public static final String CHECK_FOR_UPDATE = "preference_check_for_update";
     public static final String SHOW_NOTIFICATION = "preference_notification";
     public static final String HAS_LABEL = "preference_has_label";
+    public static final String SMART_LOCATION = "preference_smart_location";
     /*
     Statement
      */

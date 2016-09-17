@@ -17,24 +17,28 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationListener;
 import com.example.arthur.pureweather.R;
 import com.example.arthur.pureweather.constant.Constants;
 import com.example.arthur.pureweather.httpUtils.NetworkRequest;
 import com.example.arthur.pureweather.modle.Weather;
 import com.example.arthur.pureweather.service.ForegroundService;
-import com.example.arthur.pureweather.service.TimeService;
 import com.example.arthur.pureweather.utils.CheckVersion;
+import com.example.arthur.pureweather.utils.GaoDeService;
 import com.example.arthur.pureweather.utils.MyImageLoader;
 import com.example.arthur.pureweather.db.PureWeatherDB;
 import com.example.arthur.pureweather.adapter.WeatherAdapter;
@@ -80,10 +84,13 @@ public class WeatherActivity extends AppCompatActivity {
 
     PureWeatherDB pureWeatherDB;
     SharedPreferences pref;
+    SharedPreferences.Editor editor;
     List<Weather> weathers;
     String lastCity = null;
+    String myLocation = null;
     WeatherAdapter mAdapter;
-
+    GaoDeService gaoDeService;
+    private AMapLocationListener aMapLocationListener;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,8 +110,21 @@ public class WeatherActivity extends AppCompatActivity {
             Action0 closeDialog = () -> closeProgressDialog();
             getWeatherByNetwork(lastCity, closeDialog);
             CheckVersion.autoCheck(WeatherActivity.this);
-            startService(new Intent(this, ForegroundService.class));
-            startService(new Intent(this, TimeService.class));
+            /************************************** 处理自动更新显示 *************/
+            boolean allowToAutoUpdate = (pref.getInt(Constants.UPDATE_INTERVAL, 1) > 0);
+            Intent intent = new Intent(WeatherActivity.this, ForegroundService.class);
+            if (allowToAutoUpdate) {
+                initGaoDeLocate();
+                startService(intent);//原来停止服务，现在允许启动，开启服务
+            }
+        }
+        //智能切换，当前城市于所在位置不一致时，弹出提示框
+        if (pref.getBoolean(Constants.SMART_LOCATION,true)){
+            if (!myLocation.equals(lastCity)){//当前城市与所在地不同，提示是否更换
+                gaoDeService
+                        .setOnLocationChangeListener(aMapLocationListener)
+                        .startLocation();
+            }
         }
     }
 
@@ -116,13 +136,18 @@ public class WeatherActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        if (gaoDeService != null){
+            gaoDeService.onDestroy();
+        }
         super.onDestroy();
         ButterKnife.unbind(this);
     }
 
     private void initUtils() {
         pref = PreferenceManager.getDefaultSharedPreferences(this);
+        editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
         lastCity = pref.getString(Constants.LAST_CITY, "");
+        myLocation = pref.getString(Constants.MY_LOCATION,"");
         pureWeatherDB = PureWeatherDB.getInstance(this);
     }
 
@@ -221,19 +246,41 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     private void initSwipeRefreshLayout() {
-        //下拉刷新 .这里的Subscriber必须用匿名的，如果用事先定义好的观察者只能响应一次，待研究
+        //下拉刷新
         swipeRefreshLayout.setOnRefreshListener(() -> {
             lastCity = pref.getString(Constants.LAST_CITY, "");
             Action0 stopAnim = () -> swipeRefreshLayout.setRefreshing(false);
-            getWeatherByNetwork(lastCity,stopAnim);
+            getWeatherByNetwork(lastCity, stopAnim);
         });
         swipeRefreshLayout.setColorSchemeResources(R.color.indigoPrimary, R.color.greenPrimary, R.color.redPrimary);
     }
 
-    private void getWeatherByNetwork(String cityName,Action0 finishAction) {
+    private void initGaoDeLocate() {
+        gaoDeService = GaoDeService.getInstance(WeatherActivity.this);
+        aMapLocationListener = new AMapLocationListener() {
+            @Override
+            public void onLocationChanged(AMapLocation amapLocation) {
+                closeProgressDialog();
+                if (amapLocation != null) {
+                    if (amapLocation.getErrorCode() == 0) {
+                        myLocation = amapLocation.getCity().replaceAll("(?:省|市|自治区|特别行政区|地区|盟)", "");
+                        if (!myLocation.equals(lastCity) && !TextUtils.isEmpty(myLocation)){
+                            switchToMyLocation(WeatherActivity.this);
+                        }
+                    } else if (amapLocation.getErrorCode() == 12) {
+                        Toast.makeText(WeatherActivity.this, "缺少定位权限，无法使用定位功能", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(WeatherActivity.this, "无法定位当前的位置", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        };
+    }
+
+    private void getWeatherByNetwork(String cityName,Action0 aheadAction) {
         NetworkRequest.getWeatherWithName(cityName)
                 .subscribeOn(Schedulers.newThread())
-                .doOnSubscribe(finishAction)
+                .doOnSubscribe(aheadAction)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(weatherResponse -> weatherResponse.getWeathers())
@@ -251,37 +298,54 @@ public class WeatherActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Throwable e) {
-                        Toast.makeText(WeatherActivity.this, Constants.OUT_OF_NETWORK, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(WeatherActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onNext(Weather weather) {
-                        pureWeatherDB.saveWeather(weather);
-                        showWeather();
+                        if (weather.status.equals("ok")) {
+                            pureWeatherDB.saveWeather(weather);
+                            showWeather();
+                        }
                     }
                 });
+    }
+/************************************** 切换城市 *************/
+    private void switchToMyLocation(Context context){
+        String title = "智能定位";
+        String body = new StringBuilder().append("是否切换到您当前所在地：").append(myLocation).append("？").toString();
+        String positiveText = "切换";
+        String negativeText = "不，谢谢";
+        new AlertDialog.Builder(context).setTitle(title)
+                .setMessage(body)
+                .setPositiveButton(positiveText, (dialog, which) -> {
+                    showProgressDialog("切换中...");
+                    editor.putString(Constants.LAST_CITY,myLocation).commit();
+                    lastCity = myLocation;
+                    getWeatherByNetwork(myLocation, () -> closeProgressDialog());
+                })
+                .setNegativeButton(negativeText, null)
+                .setCancelable(false)
+                .show();
     }
 
     private void showWeather() {
         sendBroadcast(new Intent(Constants.ON_UPDATE_WIDGET_ALL));
         lastCity = pref.getString(Constants.LAST_CITY, "");
         Weather weather = pureWeatherDB.loadWeatherInfo(lastCity);
-/************************************** 处理通知显示 *************/
+        /************************************** 处理通知显示 *************/
         boolean allowToShowNotice = pref.getBoolean(Constants.SHOW_NOTIFICATION, true);
         if (allowToShowNotice) {
             showNotification(weather);
         } else {
             closeNotification();
         }
-/************************************** 处理自动更新显示 *************/
+        /************************************** 处理服务显示 *************/
         boolean allowToAutoUpdate = (pref.getInt(Constants.UPDATE_INTERVAL, 1) > 0);
         Intent intent = new Intent(WeatherActivity.this, ForegroundService.class);
-        if (allowToAutoUpdate && !isServiceRunning(Constants.SERVICE_NAME)) {
-            startService(intent);//原来停止服务，现在允许启动，开启服务
-        } else if (!allowToAutoUpdate && isServiceRunning(Constants.SERVICE_NAME)) {
+        if (!allowToAutoUpdate){
             stopService(intent);//原来启动服务，现在禁止启动，停止服务
         }//其他情况不操作
-
         weathers.clear();
         weathers.add(weather);
         mAdapter.notifyDataSetChanged();
@@ -315,18 +379,18 @@ public class WeatherActivity extends AppCompatActivity {
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
     }
 
-
-    public boolean isServiceRunning(String serviceClassName) {
-        final ActivityManager activityManager = (ActivityManager) WeatherActivity.this.getSystemService(Context.ACTIVITY_SERVICE);
-        final List<ActivityManager.RunningServiceInfo> services = activityManager.getRunningServices(Integer.MAX_VALUE);
-
-        for (ActivityManager.RunningServiceInfo runningServiceInfo : services) {
-            if (runningServiceInfo.service.getClassName().equals(serviceClassName)) {
-                return true;
-            }
-        }
-        return false;
-    }
+//
+//    public boolean isServiceRunning(String serviceClassName) {
+//        final ActivityManager activityManager = (ActivityManager) WeatherActivity.this.getSystemService(Context.ACTIVITY_SERVICE);
+//        final List<ActivityManager.RunningServiceInfo> services = activityManager.getRunningServices(Integer.MAX_VALUE);
+//
+//        for (ActivityManager.RunningServiceInfo runningServiceInfo : services) {
+//            if (runningServiceInfo.service.getClassName().equals(serviceClassName)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     /**
      * 菜单、返回键响应

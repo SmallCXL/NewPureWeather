@@ -132,7 +132,7 @@
                             android:layout_marginLeft="5dp"
                             android:text="气温范围："
                             android:textColor="@color/orangePrimary"
-                            android:textSize="14sp" />
+                            android:textSize="12sp" />
 
                         <TextView
                             android:id="@+id/temp_range"
@@ -163,7 +163,7 @@
                             android:layout_marginLeft="5dp"
                             android:text="相对湿度："
                             android:textColor="@color/greenPrimary"
-                            android:textSize="14sp" />
+                            android:textSize="12sp" />
 
                         <TextView
                             android:id="@+id/humidity"
@@ -195,7 +195,7 @@
                             android:layout_marginLeft="5dp"
                             android:text="降水概率："
                             android:textColor="@color/indigoPrimary"
-                            android:textSize="14sp" />
+                            android:textSize="12sp" />
 
                         <TextView
                             android:id="@+id/rainy_pos"

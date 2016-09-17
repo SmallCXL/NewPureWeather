@@ -28,6 +28,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
     private Preference showNotification;
     private Preference hasLabel;
     private PreferenceUtils mPreferenceUtils;
+    private Preference smartLocation;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,6 +55,8 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
         hasLabel = findPreference(Constants.HAS_LABEL);
         hasLabel.setOnPreferenceClickListener(this);
 
+        smartLocation = findPreference(Constants.SMART_LOCATION);
+        smartLocation.setOnPreferenceClickListener(this);
     }
 
     @Override

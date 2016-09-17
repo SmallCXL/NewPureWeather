@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minHeight="48dp"
-    android:minWidth="250dp"
-    android:previewImage="@drawable/widget_demo"
+    android:minWidth="272dp"
+    android:previewImage="@drawable/w_a"
     android:initialLayout="@layout/widget_app"
-    android:resizeMode="horizontal"
+    android:resizeMode="none"
     android:widgetCategory="home_screen"
-    android:updatePeriodMillis="86400000">
+    android:updatePeriodMillis="1800000">
     <!--
     android:minWidth : 最小宽度
     android:minHeight ： 最小高度

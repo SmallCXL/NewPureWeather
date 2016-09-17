@@ -21,13 +21,13 @@ public class GuideActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Subscription launch = Observable.timer(1200, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+        Subscription launch = Observable.timer(1000, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
                 .subscribe(aLong -> {
                     Intent intent = new Intent(GuideActivity.this,WeatherActivity.class);
                     startActivity(intent);
                     finish();
                     overridePendingTransition(R.anim.fade_in, R.anim.fade_out);//要放在Finish后面
-                    System.gc();
+//                    System.gc();
                 });
         allSubscription.add(launch);
     }

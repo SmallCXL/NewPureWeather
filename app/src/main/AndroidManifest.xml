@@ -18,6 +18,8 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <!--写入扩展存储，向扩展卡写入数据，用于写入缓存定位数据-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!--使用闹钟权限-->
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>
     <application
         android:allowBackup="true"
         tools:replace ="android:icon"
@@ -35,8 +37,7 @@
             </intent-filter>
         </service>
 
-        <service android:name=".service.TimeService"/>
-        <service android:name=".service.BackupTimeService"/>
+        <service android:name=".service.BackupService"/>
 
         <!-- 声明widget对应的AppWidgetProvider -->
         <receiver android:name=".widget.AppWidget" >
@@ -47,7 +48,19 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/appwidget_info" />
+                android:resource="@xml/app_widget_info" />
+        </receiver>
+
+        <!-- 声明widget对应的AppWidgetProvider -->
+        <receiver android:name=".widget.AppWidget2" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.example.arthur.pureweather.widget.UPDATE_ALL"/>
+                <action android:name="com.example.arthur.pureweather.widget.UPDATE_TIME"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/app_widget_info_2" />
         </receiver>
 
         <activity android:name=".activity.GuideActivity"

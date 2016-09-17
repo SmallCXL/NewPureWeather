@@ -5,7 +5,7 @@
     <string name="action_search">添加城市</string>
     <string name="drawer_open">Open Drawer</string>
     <string name="drawer_close">Close Drawer</string>
-    <string name="app_instruction">简约、专注，是识雨晴天气开发的初衷，软件可以自由设定是否后台运行，是否显示通知，一切都由你来做主！没有嵌入任何的广告，更不会私自在后台耗费流量，仅使用了手机的网络访问权限。\n\n自学安卓开发也有一段时间了，进度时快时慢，坚持了几个月，以极低的效率完成了第一个APP...希望能在检验自己学习成果的同时，给你带来一丝方便。
+    <string name="app_instruction">识雨晴天气是一款功能简洁、界面鲜活的看天气应用。软件页面的设计遵循了谷歌的Material Design风格，没有植入广告，专注为您提供24小时天气实况报道，间隔三小时和七天之内的天气预测，以及智能定位功能。如果你厌倦了目前市场上广告繁多的商业软件，识雨晴天气将是您最好的选择。
     </string>
     <string name="app_open_source">本项目已经在github上开源，欢迎一起讨论学习。项目中使用了以下开源技术，向各位前辈、大神致敬，感谢！\n\n
         * RxJava: github.com/ReactiveX/RxJava\n

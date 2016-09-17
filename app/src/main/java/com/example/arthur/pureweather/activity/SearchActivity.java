@@ -39,6 +39,7 @@ import com.example.arthur.pureweather.adapter.CityAdapter;
 import com.example.arthur.pureweather.db.PureWeatherDB;
 import com.example.arthur.pureweather.modle.Region;
 import com.example.arthur.pureweather.modle.Weather;
+import com.example.arthur.pureweather.utils.GaoDeService;
 import com.example.arthur.pureweather.utils.MyImageLoader;
 
 import java.util.ArrayList;
@@ -98,6 +99,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     private AMapLocationListener aMapLocationListener;
     private ImageView locateCurrentIcon;
     private final int PERMISSION_REQUEST_CODE = 0;
+    private GaoDeService gaoDeService;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,7 +107,8 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_search_city);
         SysApplication.getInstance().addActivity(this);
         init();
-        if (pref.getBoolean(Constants.IS_NEED_TO_CHECK,true)){
+        boolean need = pref.getBoolean(Constants.IS_NEED_TO_CHECK, true);
+        if (need) {
             checkPermission();
         }
     }
@@ -119,8 +122,11 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (gaoDeService != null){
+            gaoDeService.onDestroy();
+        }
         mRecyclerView.destroyDrawingCache();
-        if (mLocationClient != null){
+        if (mLocationClient != null) {
             mLocationClient.onDestroy();
         }
     }
@@ -205,7 +211,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                                                 case "ok":
                                                     pureWeatherDB.saveWeather(weather);
                                                     lastCity = selectedRegion.getName();
-//                                                    sendBroadcast(new Intent(Constants.ON_UPDATE_WIDGET_ALL));
                                                     goToWeatherActivity();
                                                     break;
                                                 case "unknown city":
@@ -235,51 +240,48 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void initGaoDeLocate() {
+        gaoDeService = GaoDeService.getInstance(SearchActivity.this);
         aMapLocationListener = new AMapLocationListener() {
             @Override
             public void onLocationChanged(AMapLocation amapLocation) {
                 closeProgressDialog();
                 if (amapLocation != null) {
                     if (amapLocation.getErrorCode() == 0) {
-                        lastCity = amapLocation.getCity().replaceAll("(?:省|市|自治区|特别行政区|地区|盟)", "");
-                        getWeatherByNetwork(lastCity)
-                                .subscribe(new Subscriber<Weather>() {
-                                    @Override
-                                    public void onCompleted() {
+                        if (!TextUtils.isEmpty(amapLocation.getCity())){
+                            lastCity = amapLocation.getCity().replaceAll("(?:省|市|自治区|特别行政区|地区|盟)", "");
+                            getWeatherByNetwork(lastCity)
+                                    .subscribe(new Subscriber<Weather>() {
+                                        @Override
+                                        public void onCompleted() {
 
-                                    }
+                                        }
 
-                                    @Override
-                                    public void onError(Throwable e) {
-                                        Toast.makeText(SearchActivity.this, "定位失败，请稍候重试", Toast.LENGTH_SHORT).show();
-                                    }
+                                        @Override
+                                        public void onError(Throwable e) {
+                                            Toast.makeText(SearchActivity.this, "定位失败，请稍候重试", Toast.LENGTH_SHORT).show();
+                                        }
 
-                                    @Override
-                                    public void onNext(Weather weather) {
-                                        pureWeatherDB.saveWeather(weather);
-//                                        sendBroadcast(new Intent(Constants.ON_UPDATE_WIDGET_ALL));
-                                        goToWeatherActivity();
-                                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                                    }
-                                });
-                    } else if (amapLocation.getErrorCode() == 12){
+                                        @Override
+                                        public void onNext(Weather weather) {
+                                            if (weather.status.equals("ok")){
+                                                pureWeatherDB.saveWeather(weather);
+                                                editor.putString(Constants.MY_LOCATION, lastCity).commit();
+                                                editor.putBoolean(Constants.IS_NEED_TO_CHECK, false).commit();
+                                                goToWeatherActivity();
+                                                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                                            }
+                                        }
+                                    });
+                        }
+                    } else if (amapLocation.getErrorCode() == 12) {
                         Toast.makeText(SearchActivity.this, "缺少定位权限，无法使用定位功能", Toast.LENGTH_SHORT).show();
                         checkPermission();
-                    }else {
-                        Toast.makeText(SearchActivity.this, "链接超时，请检查网络", Toast.LENGTH_SHORT).show();
-                        //定位失败时，可通过ErrCode（错误码）信息来确定失败的原因，errInfo是错误信息，详见错误码表。
-                        Log.e("AmapError", "location Error, ErrCode:"
-                                + amapLocation.getErrorCode() + ", errInfo:"
-                                + amapLocation.getErrorInfo());
+                    } else {
+                        Toast.makeText(SearchActivity.this, "自动定位失败，请手动选择城市", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
         };
-        mLocationOption = new AMapLocationClientOption();
-        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-        //获取最近3s内精度最高的一次定位结果：
-        mLocationOption.setOnceLocationLatest(true);
-        mLocationOption.setNeedAddress(true);
     }
 
     private void goToWeatherActivity() {
@@ -335,7 +337,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         return NetworkRequest
                 .getRegionWithCode(superCode)
                 .subscribeOn(Schedulers.newThread())//事件产生线程为新建的线程
-                .doOnSubscribe(() -> showProgressDialog("正在加载城市列表"))
+                .doOnSubscribe(() -> showProgressDialog("正在加载城市列表..."))
                 .subscribeOn(AndroidSchedulers.mainThread())//显示对话框的线程为主线程
                 .doOnNext(regions -> {
                     if (regions != null) {
@@ -422,9 +424,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 String input = inputName.getText().toString();
                 if (!TextUtils.isEmpty(input)) {
                     getWeatherByNetwork(input)
-                            .doOnTerminate(() -> {
-                                closeProgressDialog();
-                            })
+                            .doOnTerminate(() -> closeProgressDialog())
                             .subscribe(new Subscriber<Weather>() {
                                 @Override
                                 public void onCompleted() {
@@ -461,16 +461,14 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 if ((selectedResult != null) && !selectedResult.equals(Constants.SEARCH_FAIL) && (tempInfo != null)) {
                     pureWeatherDB.saveWeather(tempInfo);
                     lastCity = selectedResult;
-//                    sendBroadcast(new Intent(Constants.ON_UPDATE_WIDGET_ALL));
                     goToWeatherActivity();
                 }
                 break;
             case (R.id.search_city_my_location):
-                mLocationClient = new AMapLocationClient(SearchActivity.this);
-                mLocationClient.setLocationListener(aMapLocationListener);
-                mLocationClient.setLocationOption(mLocationOption);
-                mLocationClient.startLocation();
                 showProgressDialog("正在定位中...");
+                gaoDeService
+                        .setOnLocationChangeListener(aMapLocationListener)
+                        .startLocation();
                 break;
         }
     }
@@ -487,13 +485,30 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         }
         return super.onOptionsItemSelected(item);
     }
+
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mRecyclerView.destroyDrawingCache();
     }
-/******************************   checkPermission permission   *****************************/
-    public void checkPermission(){
+
+    /******************************
+     * checkPermission my location
+     *****************************/
+    public void checkMyLocation() {
+        String myLocation = pref.getString(Constants.MY_LOCATION, "");
+        if (TextUtils.isEmpty(myLocation)) {
+            gaoDeService
+                    .setOnLocationChangeListener(aMapLocationListener)
+                    .startLocation();
+            showProgressDialog("正在定位中...");
+        }
+    }
+
+    /******************************
+     * checkPermission permission
+     *****************************/
+    public void checkPermission() {
         List<String> needRequestPermissionList = findDeniedPermissions(Constants.NEEDED_PERMISSION);
         if (null != needRequestPermissionList
                 && needRequestPermissionList.size() > 0) {
@@ -503,6 +518,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                     PERMISSION_REQUEST_CODE);
         }
     }
+
     private List<String> findDeniedPermissions(String[] permissions) {
         List<String> needRequestPermissionList = new ArrayList<>();
         for (String perm : permissions) {
@@ -518,19 +534,23 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         }
         return needRequestPermissionList;
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] paramArrayOfInt) {
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (!verifyPermissions(paramArrayOfInt)) {
+                //缺少权限，弹出提示框
                 showMissingPermissionDialog();
-                editor.putBoolean(Constants.IS_NEED_TO_CHECK,false).commit();
+            } else {
+                checkMyLocation();
             }
         }
     }
+
     private boolean verifyPermissions(int[] grantResults) {
         for (int result : grantResults) {
             if (result != PackageManager.PERMISSION_GRANTED) {
-                return false;
+                return false;//缺少所需权限，返回false
             }
         }
         return true;
@@ -542,11 +562,12 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 .setMessage(R.string.notifyMsg)
                 .setNegativeButton(R.string.cancel,
                         (dialog, which) -> {
-                            editor.putBoolean(Constants.IS_NEED_TO_CHECK,true).commit();
+                            editor.putBoolean(Constants.IS_NEED_TO_CHECK, true).commit();
                             SysApplication.getInstance().exit();
                         })
                 .setPositiveButton(R.string.setting,
                         (dialog, which) -> {
+                            editor.putBoolean(Constants.IS_NEED_TO_CHECK, true).commit();
                             startAppSettings();
                         })
                 .setCancelable(false)
@@ -558,5 +579,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         intent.setData(Uri.parse("package:" + getPackageName()));
         startActivity(intent);
+        SysApplication.getInstance().exit();
     }
 }

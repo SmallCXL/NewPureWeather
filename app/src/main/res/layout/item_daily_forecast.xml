@@ -151,7 +151,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:id="@+id/forecast_1_condition"
                             android:layout_marginTop="1dp"
                             android:fontFamily="sans-serif"
@@ -185,7 +185,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_2_condition"
                             android:fontFamily="sans-serif"
@@ -219,7 +219,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_3_condition"
                             android:fontFamily="sans-serif"
@@ -253,7 +253,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_4_condition"
                             android:fontFamily="sans-serif"
@@ -287,7 +287,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_5_condition"
                             android:fontFamily="sans-serif"
@@ -321,7 +321,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_6_condition"
                             android:fontFamily="sans-serif"
@@ -355,7 +355,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:layout_marginTop="1dp"
                             android:id="@+id/forecast_7_condition"
                             android:fontFamily="sans-serif"

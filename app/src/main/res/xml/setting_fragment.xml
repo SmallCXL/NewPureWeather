@@ -6,6 +6,10 @@
             android:key="preference_update_interval"
             android:title="自动更新间隔"
             android:defaultValue="1"/>
+        <SwitchPreference
+            android:key="preference_smart_location"
+            android:title="智能定位"
+            android:defaultValue="true"/>
     </PreferenceCategory>
     <PreferenceCategory
         android:title="显示">

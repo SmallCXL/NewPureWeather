@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/radius"
+    android:background="@drawable/radius_2"
     android:gravity="center"
     android:orientation="horizontal">
     <RelativeLayout
@@ -15,7 +15,7 @@
             android:text="00:00"
             android:id="@+id/widget_now_time"
             android:layout_centerHorizontal="true"
-            android:textColor="@color/textColor"
+            android:textColor="@color/colorWhite"
             android:fontFamily="sans-serif-thin"
             android:gravity="center"
             android:textSize="56sp"/>
@@ -52,14 +52,14 @@
                 <ImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:layout_marginRight="@dimen/small_interval"
-                    android:src="@drawable/location"/>
+                    android:src="@drawable/location_white"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/textColor"
+                    android:textColor="@color/colorWhite"
                     android:textSize="14sp"
-                    android:gravity="right"
+                    android:layout_marginLeft="@dimen/small_interval"
+                    android:gravity="left"
                     android:id="@+id/widget_city_name"
                     android:layout_gravity="center"
                     android:fontFamily="sans-serif"
@@ -69,7 +69,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/widget_now_condition"
-                android:textColor="@color/textColor"
+                android:textColor="@color/colorWhite"
                 android:textSize="12sp"
                 android:gravity="right"
                 android:layout_marginTop="3dp"
@@ -80,7 +80,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/textColor"
+                android:textColor="@color/colorWhite"
                 android:textSize="12sp"
                 android:gravity="right"
                 android:id="@+id/widget_date"
