@@ -4,7 +4,7 @@
     android:minWidth="272dp"
     android:previewImage="@drawable/w_a"
     android:initialLayout="@layout/widget_app"
-    android:resizeMode="none"
+    android:resizeMode="vertical"
     android:widgetCategory="home_screen"
     android:updatePeriodMillis="1800000">
     <!--

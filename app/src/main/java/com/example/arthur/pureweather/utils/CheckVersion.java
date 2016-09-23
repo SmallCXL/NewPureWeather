@@ -18,6 +18,12 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
+/**
+ * CheckVersion：
+ * 1、启动软件时的自动检测版本信息功能，若当前版本为最新版本，则不提示任何，否则弹出提示框提示下载更新，请求失败则显示Toast
+ * 2、点击设置中“检查更新”时，进行手动检测版本信息，处理逻辑同上
+ * 3、提供获取当前软件版本号、软件版本名的接口
+ */
 public class CheckVersion {
     static String localVersion;
     static String latestVersion;

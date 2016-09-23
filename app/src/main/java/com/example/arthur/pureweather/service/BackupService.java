@@ -13,7 +13,8 @@ import rx.Observable;
 import rx.schedulers.Schedulers;
 
 /**
- * Created by Administrator on 2016/9/11.
+ * BackupService 完成以下任务
+ * 1、启动后，开启ForegroundService服务，并自动停止。
  */
 public class BackupService extends Service {
     @Override

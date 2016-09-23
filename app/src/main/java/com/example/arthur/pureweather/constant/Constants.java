@@ -11,7 +11,7 @@ public class Constants {
     public static final String IGNORE_UPDATE = "ignore_update";
     public static final String LAST_CITY = "last_city";
     public static final String MY_LOCATION = "my_location";
-    public static final int ONE_HOUR = 60 * 60 * 1000;// 增加更新频率
+//    public static final int ONE_HOUR = 3600;// 增加更新频率
     public static final String GIT_HUB_ADDRESS = "https://github.com/SmallCXL/NewPureWeather";
     public static final String EMAIL_ADDRESS = "415318545@qq.com";
     public static final String DONATION_ADDRESS = "18023891508";

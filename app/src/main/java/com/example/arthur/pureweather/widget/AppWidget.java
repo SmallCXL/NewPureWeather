@@ -1,5 +1,7 @@
 package com.example.arthur.pureweather.widget;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -24,6 +26,7 @@ import com.example.arthur.pureweather.activity.GuideActivity;
 import com.example.arthur.pureweather.activity.WeatherActivity;
 import com.example.arthur.pureweather.constant.Constants;
 import com.example.arthur.pureweather.db.PureWeatherDB;
+import com.example.arthur.pureweather.httpUtils.NetworkRequest;
 import com.example.arthur.pureweather.modle.Weather;
 import com.example.arthur.pureweather.utils.ImageCodeConverter;
 import com.example.arthur.pureweather.utils.Utils;
@@ -32,6 +35,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by Administrator on 2016/9/1.
@@ -42,23 +50,19 @@ public class AppWidget extends AppWidgetProvider {
     private static List<Integer> mAppWidgetIds = new ArrayList<>();
     @Override
     public void onEnabled(Context context) {
-//        Log.d("Small","on enable");
         Toast.makeText(context,"为了确保桌面部件能正常运行，华为和小米的手机可能需要将时雨晴天气设置为“锁屏后继续运行”",Toast.LENGTH_LONG).show();
         super.onEnabled(context);
     }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-//        Log.d("Small","on update");
         if (appWidgetIds.length > 0 ){
             for (int i=0; i<appWidgetIds.length;i++){
                 mAppWidgetIds.add(appWidgetIds[i]);
             }
         }
-        showTimeInfo(context);
-        int[] appId = AppWidgetManager.getInstance(context).getAppWidgetIds(
-                new ComponentName(context.getPackageName(),AppWidget.class.getName()));
-        showWeatherInfo(context, appId);
+        showTimeInfo(context,appWidgetIds);
+        showWeatherInfo(context, appWidgetIds);
         super.onUpdate(context, appWidgetManager, appWidgetIds);
     }
 
@@ -80,15 +84,16 @@ public class AppWidget extends AppWidgetProvider {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
+        int[] appId = AppWidgetManager.getInstance(context).getAppWidgetIds(
+                new ComponentName(context.getPackageName(),AppWidget.class.getName()));
+        showWeatherInfo(context,appId);
         switch (intent.getAction()){
             case Constants.ON_UPDATE_WIDGET_ALL:
-//                Log.d("Small","on receive");
-                int[] appId = AppWidgetManager.getInstance(context).getAppWidgetIds(
-                        new ComponentName(context.getPackageName(),AppWidget.class.getName()));
-                showWeatherInfo(context, appId);
+                showWeatherInfo(context,appId);
                 break;
             case Constants.ON_UPDATE_WIDGET_TIME:
-                showTimeInfo(context);
+                showTimeInfo(context,appId);
                 break;
         }
         super.onReceive(context, intent);
@@ -102,8 +107,8 @@ public class AppWidget extends AppWidgetProvider {
             Weather weather = pureWeatherDB.loadWeatherInfo(lastCity);
             RemoteViews remoteViews=new RemoteViews(context.getPackageName(), R.layout.widget_app);
             remoteViews.setImageViewResource(R.id.widget_image, ImageCodeConverter.getWeatherIconResource(weather.now.cond.code, "widget"));
-            String nowCondition = new StringBuilder().append(weather.now.tmp).append("°C，").append(weather.now.cond.txt).toString();
-//            String nowCondition = new StringBuilder().append(weather.now.tmp).append("°C，").append(weather.basic.update.loc).toString();
+//            String nowCondition = new StringBuilder().append(weather.now.tmp).append("°C，").append(weather.now.cond.txt).toString();
+            String nowCondition = new StringBuilder().append(weather.now.tmp).append("°C，").append(weather.basic.update.loc).toString();
             remoteViews.setTextViewText(R.id.widget_now_condition,nowCondition);
             remoteViews.setTextViewText(R.id.widget_city_name, weather.basic.city);
             AppWidgetManager.getInstance(context).updateAppWidget(appWidgetIds, remoteViews);
@@ -111,11 +116,10 @@ public class AppWidget extends AppWidgetProvider {
             Toast.makeText(context,"请先选择一个城市",Toast.LENGTH_SHORT).show();
         }
     }
-    private void showTimeInfo(Context context){
+    private void showTimeInfo(Context context, int[] appWidgetIds){
 
         Date today = new Date();
         String time = new SimpleDateFormat("HH:mm").format(today);
-//        Log.d("Small","time change"+time.substring(6));
         String date = new SimpleDateFormat("yyyy-MM-dd").format(today);
         String dateOfWeek = Utils.getDateOfWeek(date);
         String dateInfo = new StringBuilder().append(new SimpleDateFormat("MM月dd日").format(today)).append(" - ").append(dateOfWeek).toString();
@@ -131,7 +135,7 @@ public class AppWidget extends AppWidgetProvider {
         PendingIntent pi2 = PendingIntent.getActivity(context, 0, goToApp, 0);
         remoteViews.setOnClickPendingIntent(R.id.widget_weather_info, pi2);
 
-        ComponentName componentName = new ComponentName(context.getPackageName(),AppWidget.class.getName());
-        AppWidgetManager.getInstance(context).updateAppWidget(AppWidgetManager.getInstance(context).getAppWidgetIds(componentName), remoteViews);
+        AppWidgetManager.getInstance(context).updateAppWidget(appWidgetIds, remoteViews);
     }
+
 }

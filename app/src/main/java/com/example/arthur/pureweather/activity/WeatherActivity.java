@@ -1,6 +1,5 @@
 package com.example.arthur.pureweather.activity;
 
-import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -23,7 +22,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -58,7 +56,11 @@ import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 /**
- * Created by Administrator on 2016/6/9.
+ * WeatherActivity ：
+ * 1、检测当前数据库是否有天气信息，若没有，直接跳转搜索界面，若有，则执行以下功能
+ * 2、启动后自动更新天气数据，并保存到数据库
+ * 3、启动后自动检查当前软件的版本与服务器最新版本是否一致，不一致则弹出提示框提示下载
+ * 4、若智能定位功能处于开启状态，则检测当前显示与当前位置是否一致，不一致则自动定位，下载天气数据，并弹出提示框提示切换城市
  */
 public class WeatherActivity extends AppCompatActivity {
     private static Boolean isExit = false;
@@ -142,7 +144,9 @@ public class WeatherActivity extends AppCompatActivity {
         super.onDestroy();
         ButterKnife.unbind(this);
     }
-
+    /**
+     * 进入WeatherActivity前的简单初始化
+     */
     private void initUtils() {
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
@@ -151,6 +155,9 @@ public class WeatherActivity extends AppCompatActivity {
         pureWeatherDB = PureWeatherDB.getInstance(this);
     }
 
+    /**
+     * 进入WeatherActivity后的整体初始化
+     */
     private void init() {
         initRecyclerView();
         initToolbar();
@@ -158,12 +165,13 @@ public class WeatherActivity extends AppCompatActivity {
         initSwipeRefreshLayout();
     }
 
+    /**
+     * 初始化Toolbar
+     */
     private void initToolbar() {
-
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true); //设置返回键可用
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 toolbar, R.string.drawer_open,
                 R.string.drawer_close) {
@@ -178,7 +186,9 @@ public class WeatherActivity extends AppCompatActivity {
         mDrawerToggle.syncState();
         mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
-
+    /**
+     * 初始化RecyclerView
+     */
     private void initRecyclerView() {
         Weather weather = pureWeatherDB.loadWeatherInfo(lastCity);
         weathers = new ArrayList<>();
@@ -188,7 +198,9 @@ public class WeatherActivity extends AppCompatActivity {
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setAdapter(mAdapter);
     }
-
+    /**
+     * 初始化NavigationView
+     */
     private void initNavigationView() {
         View headerLayout = navigationView.inflateHeaderView(R.layout.nav_header_layout);
         final LinearLayout headerBackground = (LinearLayout) headerLayout.findViewById(R.id.nav_header_linear_layout);
@@ -244,7 +256,9 @@ public class WeatherActivity extends AppCompatActivity {
             return false;
         });
     }
-
+    /**
+     * 初始化SwipeRefreshLayout 添加下拉刷新逻辑
+     */
     private void initSwipeRefreshLayout() {
         //下拉刷新
         swipeRefreshLayout.setOnRefreshListener(() -> {
@@ -254,7 +268,9 @@ public class WeatherActivity extends AppCompatActivity {
         });
         swipeRefreshLayout.setColorSchemeResources(R.color.indigoPrimary, R.color.greenPrimary, R.color.redPrimary);
     }
-
+    /**
+     * 初始化GaoDeLocate 添加定位成功后的回调逻辑
+     */
     private void initGaoDeLocate() {
         gaoDeService = GaoDeService.getInstance(WeatherActivity.this);
         aMapLocationListener = new AMapLocationListener() {
@@ -276,7 +292,11 @@ public class WeatherActivity extends AppCompatActivity {
             }
         };
     }
-
+    /**
+     * 从网络获取天气数据
+     * @param cityName 请求的城市名称
+     * @param aheadAction 获取天气数据之前执行的事件
+     */
     private void getWeatherByNetwork(String cityName,Action0 aheadAction) {
         NetworkRequest.getWeatherWithName(cityName)
                 .subscribeOn(Schedulers.newThread())
@@ -310,7 +330,10 @@ public class WeatherActivity extends AppCompatActivity {
                     }
                 });
     }
-/************************************** 切换城市 *************/
+    /**
+     * 弹出切换城市信息的提示框
+     * @param context 显示环境
+     */
     private void switchToMyLocation(Context context){
         String title = "智能定位";
         String body = new StringBuilder().append("是否切换到您当前所在地：").append(myLocation).append("？").toString();
@@ -329,6 +352,9 @@ public class WeatherActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * 更新 WeatherActivity 界面，同时发送更新widget的广播，处理通知栏是否显示，是否关闭自动更新服务
+     */
     private void showWeather() {
         sendBroadcast(new Intent(Constants.ON_UPDATE_WIDGET_ALL));
         lastCity = pref.getString(Constants.LAST_CITY, "");
@@ -357,6 +383,10 @@ public class WeatherActivity extends AppCompatActivity {
         mRecyclerView.smoothScrollToPosition(0);
     }
 
+    /**
+     * 更新通知栏显示
+     * @param weather 通知栏显示的天气数据
+     */
     public void showNotification(Weather weather) {
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         Intent intent = new Intent(WeatherActivity.this, WeatherActivity.class);
@@ -375,22 +405,13 @@ public class WeatherActivity extends AppCompatActivity {
         manager.notify(1, notification);
     }
 
+    /**
+     * 关闭通知栏显示
+     */
     public void closeNotification() {
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
     }
 
-//
-//    public boolean isServiceRunning(String serviceClassName) {
-//        final ActivityManager activityManager = (ActivityManager) WeatherActivity.this.getSystemService(Context.ACTIVITY_SERVICE);
-//        final List<ActivityManager.RunningServiceInfo> services = activityManager.getRunningServices(Integer.MAX_VALUE);
-//
-//        for (ActivityManager.RunningServiceInfo runningServiceInfo : services) {
-//            if (runningServiceInfo.service.getClassName().equals(serviceClassName)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 
     /**
      * 菜单、返回键响应
@@ -427,6 +448,10 @@ public class WeatherActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 显示对话框
+     * @param message 对话框内容
+     */
     private void showProgressDialog(String message) {
         // TODO Auto-generated method stub
         if (progressDialog == null) {
@@ -437,7 +462,7 @@ public class WeatherActivity extends AppCompatActivity {
         progressDialog.show();
     }
 
-    /*
+    /**
      * 关闭进度对话框
      */
     private void closeProgressDialog() {

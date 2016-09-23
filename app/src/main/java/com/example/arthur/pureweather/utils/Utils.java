@@ -12,7 +12,9 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Created by Administrator on 2016/8/19.
+ * 通用工具类
+ * 1、复制信息到剪切板
+ * 2、判断指定日期是星期几
  */
 public class Utils {
     public static void copyToClipboard(String info, Context context) {

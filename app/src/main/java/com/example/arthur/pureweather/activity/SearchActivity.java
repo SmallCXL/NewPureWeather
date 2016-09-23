@@ -19,7 +19,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -50,6 +49,12 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
+/**
+ * SearchActivity ：
+ * 1、首次打开本界面时，检测本应用所需的权限是否齐全，不齐全则请求相应缺少的权限，齐全则启用自动定位
+ * 2、提供城市列表，供用户选择对应的城市
+ * 3、提供搜索城市天气信息功能
+ */
 public class SearchActivity extends AppCompatActivity implements View.OnClickListener {
     public static final int PROVINCE = 0;
     public static final int CITY = 1;
@@ -130,7 +135,9 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             mLocationClient.onDestroy();
         }
     }
-
+    /**
+     * 界面启动前的初始化
+     */
     private void init() {
         initData();
         initView();
@@ -138,6 +145,9 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         initRecyclerView();
     }
 
+    /**
+     * 数据初始化 并提供城市列表
+     */
     private void initData() {
         selectedRegion = null;
         currentLevel = PROVINCE;
@@ -156,7 +166,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         clearData.setOnClickListener(this);
         searchResult = (TextView) findViewById(R.id.search_result);
         searchResult.setOnClickListener(this);
-
         locateCurrent = ((CardView) findViewById(R.id.search_city_my_location));
         locateCurrent.setOnClickListener(this);
         locateCurrentIcon = ((ImageView) findViewById(R.id.search_city_locate_image));
@@ -239,6 +248,9 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         mRecyclerView.setItemViewCacheSize(0);
     }
 
+    /**
+     * 高德定位初始化，添加定位成功后的逻辑
+     */
     private void initGaoDeLocate() {
         gaoDeService = GaoDeService.getInstance(SearchActivity.this);
         aMapLocationListener = new AMapLocationListener() {
@@ -284,6 +296,9 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         };
     }
 
+    /**
+     * 跳转至WeatherActivity主界面
+     */
     private void goToWeatherActivity() {
         editor.putString(Constants.LAST_CITY, lastCity).commit();
         closeProgressDialog();
@@ -292,6 +307,10 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         finish();
     }
 
+    /**
+     * 请求城市列表，封装了两个方法，从网络请求和从数据请求（优先）
+     * @param superCode 对应城市代码
+     */
     private void getRegion(final String superCode) {
         Observable
                 .concat(getRegionByDB(superCode), getRegionByNetwork(superCode))
@@ -333,6 +352,11 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 });
     }
 
+    /**
+     * 从网络请求城市列表数据
+     * @param superCode 对应的城市代码
+     * @return 返回 List<Region> 类型的 Observable ，用于getRegion方法的拼接
+     */
     private Observable<List<Region>> getRegionByNetwork(final String superCode) {
         return NetworkRequest
                 .getRegionWithCode(superCode)
@@ -345,11 +369,20 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                     }
                 });
     }
-
+    /**
+     * 从数据库请求城市列表数据
+     * @param superCode 对应的城市代码
+     * @return 返回 List<Region> 类型的 Observable ，用于getRegion方法的拼接
+     */
     private Observable<List<Region>> getRegionByDB(final String superCode) {
         return Observable.just(pureWeatherDB.loadRegions(superCode));
     }
 
+    /**
+     * 从网络请求天气数据
+     * @param cityName 对应的城市名称
+     * @return 返回一个 Weather 类型的 Observable ，可供自定义订阅
+     */
     private Observable<Weather> getWeatherByNetwork(String cityName) {
         return NetworkRequest.getWeatherWithName(cityName)
                 .subscribeOn(Schedulers.newThread())
@@ -492,22 +525,22 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         mRecyclerView.destroyDrawingCache();
     }
 
-    /******************************
-     * checkPermission my location
-     *****************************/
+    /**
+     * 定位当前位置
+     */
     public void checkMyLocation() {
         String myLocation = pref.getString(Constants.MY_LOCATION, "");
         if (TextUtils.isEmpty(myLocation)) {
+            showProgressDialog("正在定位中...");
             gaoDeService
                     .setOnLocationChangeListener(aMapLocationListener)
                     .startLocation();
-            showProgressDialog("正在定位中...");
         }
     }
 
-    /******************************
-     * checkPermission permission
-     *****************************/
+    /**
+     * 检测本应用所需的权限
+     */
     public void checkPermission() {
         List<String> needRequestPermissionList = findDeniedPermissions(Constants.NEEDED_PERMISSION);
         if (null != needRequestPermissionList
@@ -516,6 +549,8 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                     needRequestPermissionList.toArray(
                             new String[needRequestPermissionList.size()]),
                     PERMISSION_REQUEST_CODE);
+        }else {
+            checkMyLocation();
         }
     }
 

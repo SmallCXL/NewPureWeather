@@ -10,7 +10,8 @@ import java.util.List;
 import rx.Observable;
 
 /**
- * Created by Administrator on 2016/7/2.
+ * NetworkRequest：
+ * 1、提供三个请求接口，分别对应天气数据请求、城市列表请求、版本信息请求
  */
 public class NetworkRequest {
 
@@ -22,7 +23,7 @@ public class NetworkRequest {
 
     public static Observable<List<Region>> getRegionWithCode(final String superCode){
         return ServiceFactory
-                .getRegionService(superCode)
+                .getRegionService()
                 .getRegion(superCode);
     }
 

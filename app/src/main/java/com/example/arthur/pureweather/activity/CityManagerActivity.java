@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -23,13 +22,14 @@ import com.example.arthur.pureweather.adapter.BriefWeatherAdapter;
 import com.example.arthur.pureweather.constant.Constants;
 import com.example.arthur.pureweather.db.PureWeatherDB;
 import com.example.arthur.pureweather.modle.BriefWeather;
-import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by Administrator on 2016/6/9.
+ * CityManagerActivity：
+ * 1、显示当前数据库中保存的天气数据信息
+ * 2、处理天气信息的显示和删除功能
  */
 public class CityManagerActivity extends AppCompatActivity {
 
@@ -50,17 +50,10 @@ public class CityManagerActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private BriefWeatherAdapter briefWeatherAdapter;
 
-    private ProgressDialog progressDialog;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_city_manager);
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-//            SystemBarTintManager tintManager = new SystemBarTintManager(this);
-//            tintManager.setStatusBarTintEnabled(true);
-//            tintManager.setStatusBarTintResource(R.color.colorPrimary);
-//        }
         SysApplication.getInstance().addActivity(this);
         init();
         refreshRecyclerView(REFRESH);
@@ -117,7 +110,6 @@ public class CityManagerActivity extends AppCompatActivity {
                 lastCity = briefWeathers.get(position).getCityName();
                 editor.putString(Constants.LAST_CITY, lastCity);
                 editor.commit();
-//                sendBroadcast(new Intent(Constants.ON_UPDATE_WIDGET_ALL));
                 Intent intent = new Intent(CityManagerActivity.this, WeatherActivity.class);
                 startActivity(intent);
                 finish();

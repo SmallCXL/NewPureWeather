@@ -7,7 +7,8 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * Created by Administrator on 2016/7/3.
+ * ServiceFactory：
+ * 1、单例模式创建网络请求的服务接口
  */
 public class ServiceFactory {
 
@@ -34,8 +35,8 @@ public class ServiceFactory {
         }
         return tempService;
     }
-    /*
-    创建和风天气API的服务实例，仅类的内部使用
+    /**
+     *创建和风天气API的服务实例，添加Gson解析转换器，添加Rxjava的回调适配器
      */
     private static WeatherService createWeatherService() {
         Retrofit retrofit = new Retrofit.Builder()
@@ -50,27 +51,27 @@ public class ServiceFactory {
     /*
     获取RegionService实例 - 单件模式，确保线程安全
      */
-    public static RegionService getRegionService(String superCode){
+    public static RegionService getRegionService(){
         RegionService tempService = regionService;
         if (tempService == null){
             synchronized (ServiceFactory.class){
                 tempService = regionService;
                 if (tempService == null){
-                    tempService = createRegionService(superCode);
+                    tempService = createRegionService();
                     regionService = tempService;
                 }
             }
         }
         return tempService;
     }
-    /*
-    创建中国天气网API服务实例
+    /**
+     *创建中国天气网API服务实例，添加自定义的请求结果转换器，添加Rxjava的回调适配器
      */
-    private static RegionService createRegionService(String superCode) {
+    private static RegionService createRegionService() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Constants.CHINA_WEATHER_BASE_BRL)
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create()) // 添加Rx适配器，使Retrofit支持RxJava的Observable回调类型
-                .addConverterFactory(RegionConverterFactory.create(superCode)) // 添加自定义的Province数据转换器
+                .addConverterFactory(RegionConverterFactory.create()) // 添加自定义的Province数据转换器
                 .build();
         return retrofit.create(RegionService.class);
     }
@@ -91,8 +92,8 @@ public class ServiceFactory {
         }
         return tempService;
     }
-    /*
-    创建IM FIR 的服务实例
+    /**
+     *创建IM FIR 的服务实例，添加Gson解析转换器，添加Rxjava的回调适配器
      */
     private static VersionService createVersionService(){
         Retrofit retrofit = new Retrofit.Builder()

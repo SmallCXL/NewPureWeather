@@ -12,7 +12,7 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
 /**
- * Created by Administrator on 2016/6/21.
+ * 自定义图片加载工具，Glide 框架支持
  */
 public class MyImageLoader {
 

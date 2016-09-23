@@ -14,17 +14,16 @@ import retrofit2.Converter;
 import retrofit2.Retrofit;
 
 /**
- * Created by Administrator on 2016/7/3.
+ * RegionConverterFactory：
+ * 自定义 Retrofit 中所需的网络请求结果转换器，将请求结果按照需求处理、保存
  */
 public class RegionConverterFactory extends Converter.Factory {
-    private String superCode;
 
-    public static RegionConverterFactory create(String superCode){
-        return new RegionConverterFactory(superCode);
+    public static RegionConverterFactory create(){
+        return new RegionConverterFactory();
     }
 
-    private RegionConverterFactory(String superCode){
-        this.superCode = superCode;
+    private RegionConverterFactory(){
     }
 
     @Override
