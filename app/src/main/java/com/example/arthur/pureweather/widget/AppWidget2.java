@@ -7,15 +7,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.AlarmClock;
-import android.provider.Settings;
-import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
-import android.util.Log;
-import android.widget.DigitalClock;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -41,22 +35,19 @@ public class AppWidget2 extends AppWidgetProvider {
     private static List<Integer> mAppWidgetIds = new ArrayList<>();
     @Override
     public void onEnabled(Context context) {
-//        Log.d("Small","on enable");
+        Toast.makeText(context,"为了确保桌面部件能正常运行，华为和小米的手机可能需要将时雨晴天气设置为“锁屏后继续运行”",Toast.LENGTH_LONG).show();
         super.onEnabled(context);
     }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-//        Log.d("Small","on update");
         if (appWidgetIds.length > 0 ){
             for (int i=0; i<appWidgetIds.length;i++){
                 mAppWidgetIds.add(appWidgetIds[i]);
             }
         }
-        showTimeInfo(context);
-        int[] appId = AppWidgetManager.getInstance(context).getAppWidgetIds(
-                new ComponentName(context.getPackageName(),AppWidget2.class.getName()));
-        showWeatherInfo(context, appId);
+        showTimeInfo(context,appWidgetIds);
+        showWeatherInfo(context, appWidgetIds);
         super.onUpdate(context, appWidgetManager, appWidgetIds);
     }
 
@@ -78,15 +69,16 @@ public class AppWidget2 extends AppWidgetProvider {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-//        Log.d("Small","on receive "+intent.getAction());
+
+        int[] appId = AppWidgetManager.getInstance(context).getAppWidgetIds(
+                new ComponentName(context.getPackageName(),AppWidget2.class.getName()));
+        showWeatherInfo(context,appId);
         switch (intent.getAction()){
             case Constants.ON_UPDATE_WIDGET_ALL:
-                int[] appId = AppWidgetManager.getInstance(context).getAppWidgetIds(
-                        new ComponentName(context.getPackageName(),AppWidget2.class.getName()));
-                showWeatherInfo(context, appId);
+                showWeatherInfo(context,appId);
                 break;
             case Constants.ON_UPDATE_WIDGET_TIME:
-                showTimeInfo(context);
+                showTimeInfo(context,appId);
                 break;
         }
         super.onReceive(context, intent);
@@ -105,22 +97,20 @@ public class AppWidget2 extends AppWidgetProvider {
             remoteViews.setTextViewText(R.id.widget_now_condition,nowCondition);
             remoteViews.setTextViewText(R.id.widget_city_name, weather.basic.city);
             AppWidgetManager.getInstance(context).updateAppWidget(appWidgetIds, remoteViews);
-
         }else {
             Toast.makeText(context,"请先选择一个城市",Toast.LENGTH_SHORT).show();
         }
     }
-    private void showTimeInfo(Context context){
+    private void showTimeInfo(Context context, int[] appWidgetIds){
 
         Date today = new Date();
-        String time = new SimpleDateFormat("HH:mm:ss").format(today);
-//        Log.d("Small","time change"+time.substring(6));
+        String time = new SimpleDateFormat("HH:mm").format(today);
         String date = new SimpleDateFormat("yyyy-MM-dd").format(today);
         String dateOfWeek = Utils.getDateOfWeek(date);
         String dateInfo = new StringBuilder().append(new SimpleDateFormat("MM月dd日").format(today)).append(" - ").append(dateOfWeek).toString();
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_app_2);
-        remoteViews.setTextViewText(R.id.widget_now_time,time.substring(0,5));
-        remoteViews.setTextViewText(R.id.widget_date,dateInfo);
+        remoteViews.setTextViewText(R.id.widget_now_time,time);
+        remoteViews.setTextViewText(R.id.widget_date, dateInfo);
 
         Intent goToSystemAlarm = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
         PendingIntent pi = PendingIntent.getActivity(context, 0, goToSystemAlarm, 0);
@@ -130,7 +120,7 @@ public class AppWidget2 extends AppWidgetProvider {
         PendingIntent pi2 = PendingIntent.getActivity(context, 0, goToApp, 0);
         remoteViews.setOnClickPendingIntent(R.id.widget_weather_info, pi2);
 
-        ComponentName componentName = new ComponentName(context.getPackageName(),AppWidget2.class.getName());
-        AppWidgetManager.getInstance(context).updateAppWidget(AppWidgetManager.getInstance(context).getAppWidgetIds(componentName), remoteViews);
+        AppWidgetManager.getInstance(context).updateAppWidget(appWidgetIds, remoteViews);
     }
+
 }

@@ -281,7 +281,7 @@ public class WeatherActivity extends AppCompatActivity {
                     if (amapLocation.getErrorCode() == 0) {
                         myLocation = amapLocation.getCity().replaceAll("(?:省|市|自治区|特别行政区|地区|盟)", "");
                         if (!myLocation.equals(lastCity) && !TextUtils.isEmpty(myLocation)){
-                            switchToMyLocation(WeatherActivity.this);
+                            switchToMyLocation(WeatherActivity.this,myLocation);
                         }
                     } else if (amapLocation.getErrorCode() == 12) {
                         Toast.makeText(WeatherActivity.this, "缺少定位权限，无法使用定位功能", Toast.LENGTH_SHORT).show();
@@ -334,7 +334,7 @@ public class WeatherActivity extends AppCompatActivity {
      * 弹出切换城市信息的提示框
      * @param context 显示环境
      */
-    private void switchToMyLocation(Context context){
+    private void switchToMyLocation(Context context,String myLocation){
         String title = "智能定位";
         String body = new StringBuilder().append("是否切换到您当前所在地：").append(myLocation).append("？").toString();
         String positiveText = "切换";

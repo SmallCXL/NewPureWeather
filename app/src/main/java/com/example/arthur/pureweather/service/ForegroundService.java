@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.example.arthur.pureweather.activity.WeatherActivity;
 import com.example.arthur.pureweather.constant.Constants;
@@ -37,6 +38,7 @@ public class ForegroundService extends Service {
     public SharedPreferences mSharedPreferences;
     private String lastCity;
     private PureWeatherDB pureWeatherDB;
+    private static volatile boolean updated = false;
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -60,16 +62,21 @@ public class ForegroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 //        int interval = mSharedPreferences.getInt(Constants.UPDATE_INTERVAL, 1);
-// 为了较好的用户体验，暂时没有按照设定的时间定时更新
+        // 为了较好的用户体验，暂时没有按照设定的时间定时更新
         Observable
                 .concat(Observable.just(1), Observable.interval(1000, TimeUnit.MILLISECONDS))
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(number -> {
                     sendBroadcast(new Intent(Constants.ON_UPDATE_WIDGET_TIME));
                     Date today = new Date();
-                    String nowMinute = new SimpleDateFormat("mm:ss").format(today);
-                    if (nowMinute.equals("10:00")) {
-                        getWeatherByNetwork();
+                    String nowMinute_string = new SimpleDateFormat("mm").format(today);
+                    int nowMinute_int = Integer.parseInt(nowMinute_string);
+//                    Log.d("Small",String.valueOf(updated));
+                    //00-50期间不断检测是否已经更新过，没有更新则请求网络数据，更新过则不做任何处理，50-59期间复位，等待下一次更新
+                    if ((nowMinute_int <= 50) && (!updated)) {
+                            getWeatherByNetwork();
+                    }else if(nowMinute_int >50 && updated){
+                        updated = false;
                     }
                 });
         return START_STICKY;
@@ -107,6 +114,7 @@ public class ForegroundService extends Service {
                     public void onNext(Weather weather) {
                         if (weather.status.equals("ok")) {
                             pureWeatherDB.saveWeather(weather);
+                            updated = true;
                             //延时5秒后发送更新桌面部件的广播，确保数据已经保存完毕
                             //此处有坑，原来使用的是Timer定时任务，计时5秒很不准确，导致收到数据后还没来的及保存，就发送了广播，桌面部件也就不能按时更新
                             //RxJava的interval函数具有高精度定时任务功能

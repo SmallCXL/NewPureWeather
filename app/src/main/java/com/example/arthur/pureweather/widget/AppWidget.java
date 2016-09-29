@@ -1,7 +1,5 @@
 package com.example.arthur.pureweather.widget;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -9,24 +7,16 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.AlarmClock;
-import android.provider.Settings;
-import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
-import android.util.Log;
-import android.widget.DigitalClock;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.example.arthur.pureweather.R;
 import com.example.arthur.pureweather.activity.GuideActivity;
-import com.example.arthur.pureweather.activity.WeatherActivity;
 import com.example.arthur.pureweather.constant.Constants;
 import com.example.arthur.pureweather.db.PureWeatherDB;
-import com.example.arthur.pureweather.httpUtils.NetworkRequest;
 import com.example.arthur.pureweather.modle.Weather;
 import com.example.arthur.pureweather.utils.ImageCodeConverter;
 import com.example.arthur.pureweather.utils.Utils;
@@ -35,11 +25,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by Administrator on 2016/9/1.
@@ -107,8 +92,8 @@ public class AppWidget extends AppWidgetProvider {
             Weather weather = pureWeatherDB.loadWeatherInfo(lastCity);
             RemoteViews remoteViews=new RemoteViews(context.getPackageName(), R.layout.widget_app);
             remoteViews.setImageViewResource(R.id.widget_image, ImageCodeConverter.getWeatherIconResource(weather.now.cond.code, "widget"));
-//            String nowCondition = new StringBuilder().append(weather.now.tmp).append("°C，").append(weather.now.cond.txt).toString();
-            String nowCondition = new StringBuilder().append(weather.now.tmp).append("°C，").append(weather.basic.update.loc).toString();
+            String nowCondition = new StringBuilder().append(weather.now.tmp).append("°C，").append(weather.now.cond.txt).toString();
+//            String nowCondition = new StringBuilder().append(weather.now.tmp).append("°C，").append(weather.basic.update.loc).toString();
             remoteViews.setTextViewText(R.id.widget_now_condition,nowCondition);
             remoteViews.setTextViewText(R.id.widget_city_name, weather.basic.city);
             AppWidgetManager.getInstance(context).updateAppWidget(appWidgetIds, remoteViews);

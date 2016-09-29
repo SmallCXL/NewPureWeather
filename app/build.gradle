@@ -9,8 +9,8 @@ android {
         applicationId "com.example.arthur.pureweather"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 8
-        versionName "1.22"
+        versionCode 9
+        versionName "1.23"
     }
     buildTypes {
         release {
